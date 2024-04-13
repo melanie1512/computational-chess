@@ -1,7 +1,8 @@
 # Computational Chess 
 
-<img src="https://github.com/melanie1512/computational-chess/assets/129910983/6f3e98f9-ed07-40d8-9e6c-1203e1c2d96f" alt="ches" width="200">
-
+<div style="text-align: center;">
+    <img src="https://github.com/melanie1512/computational-chess/assets/129910983/6f3e98f9-ed07-40d8-9e6c-1203e1c2d96f" alt="ches" width="500">
+</div>
 ## Members :busts_in_silhouette:
 
 | Nombre     | Email                  | Código UTEC | Usuario GitHub     |
