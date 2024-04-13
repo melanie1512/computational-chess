@@ -3,9 +3,9 @@
 ### Members
 | Nombre     | Email                  | Código UTEC | Usuario GitHub     |
 |------------|------------------------|-------------|--------------------|
-| Juan Pérez | juan@example.com       | 123456      | [juanperez](https://github.com/juanperez) |
-| María López| maria@example.com      | 987654      | [marialopez](https://github.com/marialopez) |
-| Carlos Ruiz| carlos@example.com     | 456789      | [carlosruiz](https://github.com/carlosruiz) |
+| Melanie Cortez Rojas | melanie.cortez@utec.edu.pe       | 202210100      | [melanie1512](https://github.com/melanie1512) |
+| Luis Gutierrez Guanilo | luis.gutierrez.g@utec.edu.pe      | 202010074      | [Luis-ntonio](https://github.com/Luis-ntonio) |
+| Denzel Bautista Rodriguez | denzel.bautista@utec.edu.pe     | 202210461      | [denzelbautista](https://github.com/denzelbautista) |
 
 
 ## Description
