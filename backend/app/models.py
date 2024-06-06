@@ -7,6 +7,10 @@ class Position(db.Model):
     x = db.Column(db.Integer, nullable=False)
     y = db.Column(db.Integer, nullable=False)
 
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
     def same_position(self, other_position):
         return self.x == other_position.x and self.y == other_position.y
 
