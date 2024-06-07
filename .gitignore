@@ -3,6 +3,7 @@
 # para el backend
 *.venv
 *__pycache__
+*.pytest_cache
 
 # dependencies
 /node_modules

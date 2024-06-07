@@ -16,7 +16,7 @@ class Position(db.Model):
     x = db.Column(db.Integer, nullable=False)
     y = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, x, y):
+    def __init__(self, x:int, y:int):
         self.x = x
         self.y = y
 
