@@ -20,6 +20,9 @@ class Position(db.Model):
     def __init__(self, x:int, y:int):
         self.x = x
         self.y = y
+        if not self.is_valid():
+            raise ValueError("Invalid position coordinates")
+
 
     def same_position(self, other_position):
         return self.x == other_position.x and self.y == other_position.y
