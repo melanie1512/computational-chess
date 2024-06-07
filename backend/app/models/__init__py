@@ -1,2 +1,0 @@
-from .piece import Piece
-from .position import Position
