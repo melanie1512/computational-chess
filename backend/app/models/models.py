@@ -26,7 +26,12 @@ class Position(db.Model):
 
     def clone(self):
         return Position(x=self.x, y=self.y)
-
+    
+    def is_valid(self):
+        if 1 <= self.x <= 8 and 1 <= self.y <= 8:
+            return True
+        else:
+            return False
 
 class Piece(db.Model):
     __tablename__ = "pieces"
