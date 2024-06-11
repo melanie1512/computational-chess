@@ -10,6 +10,7 @@ from ..rules import (
     get_castling_moves,
 )
 
+
 class TeamTypeManager:
     def __init__(self, our):
         self._our = 1 if our == "w" else 2
@@ -50,31 +51,30 @@ class TeamType:
     DRAW = "d"
 
 
-
 class Position(db.Model):
     __tablename__ = "positions"
     id = db.Column(db.Integer, primary_key=True)
     x = db.Column(db.Integer, nullable=False)
     y = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, x:int, y:int):
+    def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
         if not self.is_valid():
             raise ValueError("Invalid position coordinates")
-
 
     def same_position(self, other_position):
         return self.x == other_position.x and self.y == other_position.y
 
     def clone(self):
         return Position(x=self.x, y=self.y)
-    
+
     def is_valid(self):
         if 1 <= self.x <= 8 and 1 <= self.y <= 8:
             return True
         else:
             return False
+
 
 class Piece(db.Model):
     __tablename__ = "pieces"
@@ -87,8 +87,14 @@ class Piece(db.Model):
     has_moved = db.Column(db.Boolean, default=False)
     is_checked = db.Column(db.Boolean, default=False)
 
-    def __init__(self, position: Position, tipo: PieceType, 
-                 team: TeamType, has_moved=False, possible_moves=None):
+    def __init__(
+        self,
+        position: Position,
+        tipo: PieceType,
+        team: TeamType,
+        has_moved=False,
+        possible_moves=None,
+    ):
         if possible_moves is None:
             possible_moves = []
         self.image = f'assets/images/{tipo}_{"w" if team == 1 else "b"}.png'
@@ -101,7 +107,7 @@ class Piece(db.Model):
 
     @property
     def is_pawn(self):
-        return (self.type == PieceType.PAWN)
+        return self.type == PieceType.PAWN
 
     @property
     def is_rook(self):
@@ -137,6 +143,7 @@ class Piece(db.Model):
             has_moved=self.has_moved,
             possible_moves=[pos.clone() for pos in self.possible_moves],
         )
+
 
 # Board:
 
