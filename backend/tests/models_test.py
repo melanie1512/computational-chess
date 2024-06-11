@@ -1,5 +1,5 @@
 import pytest
-from app.models.models import Piece, Board, Position, PieceType, TeamType
+from app.models import Piece, Board, Position, PieceType, TeamType
 
 # test Position
 
@@ -136,6 +136,7 @@ def test_piece_clone():
 
 # test Board
 
+
 def setup_board():
     # initializing pieces
     pieces = [
@@ -174,6 +175,7 @@ def setup_board():
     ]
     return Board(pieces, total_turns=1)
 
+
 def test_board_initial_setup():
     board = setup_board()
     assert board is not None
@@ -181,11 +183,13 @@ def test_board_initial_setup():
     assert board.total_turns == 1
     assert board.winning_team is None
 
+
 def test_board_current_team():
     board = setup_board()
     assert board.current_team == TeamType.OUR
     board.total_turns += 1
     assert board.current_team == TeamType.OPPONENT
+
 
 def test_board_get_valid_moves():
     board = setup_board()

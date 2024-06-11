@@ -1,6 +1,6 @@
-from ..database import db
+from .database import db
 
-from ..rules import (
+from app.rules.rules import (
     get_possible_pawn_moves,
     get_possible_knight_moves,
     get_possible_bishop_moves,
