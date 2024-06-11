@@ -90,16 +90,16 @@ class Piece(db.Model):
     def __init__(
         self,
         position: Position,
-        tipo: PieceType,
+        type: PieceType,
         team: TeamType,
         has_moved=False,
         possible_moves=None,
     ):
         if possible_moves is None:
             possible_moves = []
-        self.image = f'assets/images/{tipo}_{"w" if team == 1 else "b"}.png'
+        self.image = f'assets/images/{type}_{"w" if team == 1 else "b"}.png'
         self.position = position
-        self.type = tipo
+        self.type = type
         self.team = team
         self.possible_moves = possible_moves
         self.has_moved = has_moved
