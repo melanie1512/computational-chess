@@ -189,7 +189,12 @@ def test_board_current_team():
 
 def test_board_get_valid_moves():
     board = setup_board()
-    pawn = next(piece for piece in board.pieces if piece.is_pawn and piece.team == TeamType.OUR)
+    pawn = None
+    for piece in board.pieces:
+        if piece.is_pawn and piece.team == TeamType.OUR:
+            pawn = piece
+            break
+    assert pawn is not None, "No se encontró un peón del equipo OUR"
     valid_moves = board.get_valid_moves(pawn, board.pieces)
     assert valid_moves is not None
     assert len(valid_moves) > 0
