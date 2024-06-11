@@ -132,3 +132,51 @@ def test_piece_clone():
     assert len(Piece1.possible_moves) == len(Piece2.possible_moves)
     for cp_move, op_move in zip(Piece2.possible_moves, Piece1.possible_moves):
         assert cp_move.same_position(op_move)
+
+
+# test Board
+
+def setup_board():
+    # initializing pieces
+    pieces = [
+        Piece(Position(1, 1), PieceType.ROOK, TeamType.OUR),
+        Piece(Position(2, 1), PieceType.KNIGHT, TeamType.OUR),
+        Piece(Position(3, 1), PieceType.BISHOP, TeamType.OUR),
+        Piece(Position(4, 1), PieceType.QUEEN, TeamType.OUR),
+        Piece(Position(5, 1), PieceType.KING, TeamType.OUR),
+        Piece(Position(6, 1), PieceType.BISHOP, TeamType.OUR),
+        Piece(Position(7, 1), PieceType.KNIGHT, TeamType.OUR),
+        Piece(Position(8, 1), PieceType.ROOK, TeamType.OUR),
+        Piece(Position(1, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(2, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(3, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(4, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(5, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(6, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(7, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(8, 2), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(1, 8), PieceType.ROOK, TeamType.OPPONENT),
+        Piece(Position(2, 8), PieceType.KNIGHT, TeamType.OPPONENT),
+        Piece(Position(3, 8), PieceType.BISHOP, TeamType.OPPONENT),
+        Piece(Position(4, 8), PieceType.QUEEN, TeamType.OPPONENT),
+        Piece(Position(5, 8), PieceType.KING, TeamType.OPPONENT),
+        Piece(Position(6, 8), PieceType.BISHOP, TeamType.OPPONENT),
+        Piece(Position(7, 8), PieceType.KNIGHT, TeamType.OPPONENT),
+        Piece(Position(8, 8), PieceType.ROOK, TeamType.OPPONENT),
+        Piece(Position(1, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(2, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(3, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(4, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(5, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(6, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(7, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(8, 7), PieceType.PAWN, TeamType.OPPONENT),
+    ]
+    return Board(pieces, total_turns=0)
+
+def test_board_initial_setup():
+    board = setup_board()
+    assert board is not None
+    assert len(board.pieces) == 32
+    assert board.total_turns == 0
+    assert board.winning_team is None
