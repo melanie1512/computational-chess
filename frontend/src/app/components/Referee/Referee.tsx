@@ -49,10 +49,10 @@ export default function Referee() {
                 validMove, playedPiece,
                 destination);
 
-            if(clonedBoard.winningTeam !== undefined && clonedBoard.winningTeam !== TeamType.DRAW) {
+            if (clonedBoard.winningTeam !== undefined && clonedBoard.winningTeam !== TeamType.DRAW) {
                 checkmateModalRef.current?.classList.remove("hidden");
             }
-            else if(clonedBoard.winningTeam === TeamType.DRAW) {
+            else if (clonedBoard.winningTeam === TeamType.DRAW) {
                 stalemateModalRef.current?.classList.remove("hidden");
             }
 
@@ -159,7 +159,7 @@ export default function Referee() {
     function promotionTeamType() {
         return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
     }
-    
+
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");
@@ -188,7 +188,7 @@ export default function Referee() {
             <div className="modal hidden" ref={stalemateModalRef}>
                 <div className="modal-body">
                     <div className="checkmate-body">
-                        <span>It's a Draw!</span>
+                        <span>Its a Draw!</span>
                         <button onClick={restartGame}>Play again</button>
                     </div>
                 </div>
@@ -196,14 +196,14 @@ export default function Referee() {
             <div className="cont">
                 <div className="Playzone">
                     <div className="coordinate-y">
-                            <div className="number">8</div>
-                            <div className="number">7</div>
-                            <div className="number">6</div>
-                            <div className="number">5</div>
-                            <div className="number">4</div>
-                            <div className="number">3</div>
-                            <div className="number">2</div>
-                            <div className="number">1</div>
+                        <div className="number">8</div>
+                        <div className="number">7</div>
+                        <div className="number">6</div>
+                        <div className="number">5</div>
+                        <div className="number">4</div>
+                        <div className="number">3</div>
+                        <div className="number">2</div>
+                        <div className="number">1</div>
                     </div>
                     <Chessboard playMove={playMove}
                         pieces={board.pieces} />
