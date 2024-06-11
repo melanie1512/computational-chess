@@ -172,11 +172,24 @@ def setup_board():
         Piece(Position(7, 7), PieceType.PAWN, TeamType.OPPONENT),
         Piece(Position(8, 7), PieceType.PAWN, TeamType.OPPONENT),
     ]
-    return Board(pieces, total_turns=0)
+    return Board(pieces, total_turns=1)
 
 def test_board_initial_setup():
     board = setup_board()
     assert board is not None
     assert len(board.pieces) == 32
-    assert board.total_turns == 0
+    assert board.total_turns == 1
     assert board.winning_team is None
+
+def test_board_current_team():
+    board = setup_board()
+    assert board.current_team == TeamType.OUR
+    board.total_turns += 1
+    assert board.current_team == TeamType.OPPONENT
+
+def test_board_get_valid_moves():
+    board = setup_board()
+    pawn = next(piece for piece in board.pieces if piece.is_pawn and piece.team == TeamType.OUR)
+    valid_moves = board.get_valid_moves(pawn, board.pieces)
+    assert valid_moves is not None
+    assert len(valid_moves) > 0
