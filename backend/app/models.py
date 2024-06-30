@@ -1,15 +1,19 @@
 from .database import db
 
-from app.rules.rules import (
-    get_possible_pawn_moves,
-    get_possible_knight_moves,
-    get_possible_bishop_moves,
-    get_possible_rook_moves,
-    get_possible_queen_moves,
+from app.referee.rules.BishopRules import get_possible_bishop_moves
+
+from app.referee.rules.PawnRules import get_possible_pawn_moves
+
+from app.referee.rules.KingRules import (
     get_possible_king_moves,
-    get_castling_moves,
+    get_castling_moves
 )
 
+from app.referee.rules.KnightRules import get_possible_knight_moves
+
+from app.referee.rules.QueenRules import get_possible_queen_moves
+
+from app.referee.rules.RookRules import get_possible_rook_moves
 
 class TeamTypeManager:
     def __init__(self, our):

@@ -1,4 +1,4 @@
-from backend.app.models.models import Piece, Position, TeamType, Pawn
+
 from .GeneralRules import (
     tile_is_occupied,
     tile_is_occupied_by_opponent,
@@ -8,11 +8,12 @@ from typing import List
 
 
 def rook_move(
-    initial_position: Position,
-    desired_position: Position,
-    team: TeamType,
-    board_state: List[Piece],
+    initial_position,
+    desired_position,
+    team,
+    board_state,
 ):
+    from app.models import  Position
     if initial_position.x == desired_position.x:
         for i in range(1, 8):
             multiplier = -1 if desired_position.y < initial_position.y else 1
@@ -47,16 +48,15 @@ def rook_move(
 
     return False
 
-
-def get_possible_rook_moves(rook: Piece, board_state: List[Piece]) -> List[Position]:
+def get_possible_rook_moves(rook, board_state):
+    from app.models import Position
     possible_moves = []
 
     # Movimiento arriba
     for i in range(1, 8):
-        if rook.position.y + i > 7:
+        if rook.position.y + i > 8:
             break
         destination = Position(rook.position.x, rook.position.y + i)
-
         if not tile_is_occupied(destination, board_state):
             possible_moves.append(destination)
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
@@ -67,10 +67,9 @@ def get_possible_rook_moves(rook: Piece, board_state: List[Piece]) -> List[Posit
 
     # Movimiento abajo
     for i in range(1, 8):
-        if rook.position.y - i < 0:
+        if rook.position.y - i < 1:
             break
         destination = Position(rook.position.x, rook.position.y - i)
-
         if not tile_is_occupied(destination, board_state):
             possible_moves.append(destination)
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
@@ -81,10 +80,9 @@ def get_possible_rook_moves(rook: Piece, board_state: List[Piece]) -> List[Posit
 
     # Movimiento izquierda
     for i in range(1, 8):
-        if rook.position.x - i < 0:
+        if rook.position.x - i < 1:
             break
         destination = Position(rook.position.x - i, rook.position.y)
-
         if not tile_is_occupied(destination, board_state):
             possible_moves.append(destination)
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
@@ -95,10 +93,9 @@ def get_possible_rook_moves(rook: Piece, board_state: List[Piece]) -> List[Posit
 
     # Movimiento derecha
     for i in range(1, 8):
-        if rook.position.x + i > 7:
+        if rook.position.x + i > 8:
             break
         destination = Position(rook.position.x + i, rook.position.y)
-
         if not tile_is_occupied(destination, board_state):
             possible_moves.append(destination)
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):

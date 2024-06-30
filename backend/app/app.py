@@ -1,6 +1,6 @@
 from flask import Flask
 from .database import init_db, db
-from .models.models import Piece, Position
+from .models import Piece, Position
 
 
 def create_app():
