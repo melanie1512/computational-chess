@@ -1,5 +1,5 @@
 import pytest
-from app.models import Piece, Board, Position, PieceType, TeamType
+from backend.app.models.Board import Piece, Board, Position, PieceType, TeamType
 
 # test Position
 

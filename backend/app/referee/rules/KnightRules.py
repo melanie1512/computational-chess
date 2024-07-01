@@ -1,7 +1,7 @@
-from backend.app.models.models import Piece, Position, TeamType, Pawn
+from backend.app.models.Position import Position
+from backend.app.models.Piece import Piece
+from backend.app.models.Types import TeamType
 from .GeneralRules import (
-    tile_is_occupied,
-    tile_is_occupied_by_opponent,
     tile_is_empty_or_occupied_by_opponent,
 )
 from typing import List
