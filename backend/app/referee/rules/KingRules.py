@@ -8,29 +8,25 @@ from typing import List
 
 
 def king_move(initial_position, desired_position, team, board_state):
-    from app.models import Piece, Position
+    from app.models import Position
     for i in range(1, 2):
         # Diagonal
         multiplier_x = (
-            -1
-            if desired_position.x < initial_position.x
-            else 1 if desired_position.x > initial_position.x else 0
+            -1 if desired_position.x < initial_position.x else
+            1 if desired_position.x > initial_position.x else 0
         )
         multiplier_y = (
-            -1
-            if desired_position.y < initial_position.y
-            else 1 if desired_position.y > initial_position.y else 0
+            -1 if desired_position.y < initial_position.y else
+            1 if desired_position.y > initial_position.y else 0
         )
 
         passed_position = Position(
-            initial_position + (i * multiplier_x),
-            initial_position.y + (i * multiplier_y),
+            initial_position.x + (i * multiplier_x),
+            initial_position.y + (i * multiplier_y)
         )
 
         if passed_position.same_position(desired_position):
-            if tile_is_empty_or_occupied_by_opponent(
-                passed_position, board_state, team
-            ):
+            if tile_is_empty_or_occupied_by_opponent(passed_position, board_state, team):
                 return True
         else:
             if tile_is_occupied(passed_position, board_state):

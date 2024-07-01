@@ -4,4 +4,4 @@ test:
 	pytest .
 
 coverage:
-	pytest --cov=app
+	pytest --cov=tests
