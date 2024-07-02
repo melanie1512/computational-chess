@@ -1,5 +1,5 @@
-from backend.app.models.Piece import Piece
-from backend.app.models.Types import PieceType
+from app.models.Piece import Piece
+from app.models.Types import PieceType
 # Pawn
 
 

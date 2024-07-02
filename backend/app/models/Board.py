@@ -1,5 +1,5 @@
-from backend.app.models.Types import PieceType, TeamType
-from backend.app.models.Position import Position
+from app.models.Types import PieceType, TeamType
+from app.models.Position import Position
 
 from app.rules.rules import (
     get_possible_pawn_moves,

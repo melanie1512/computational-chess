@@ -16,7 +16,7 @@ def is_opponent_piece(position, team, board_state):
 
 
 def get_possible_pawn_moves(pawn, board_state):
-    from backend.app.models.Board import Position, TeamType
+    from app.models.Board import Position, TeamType
 
     moves = []
 

@@ -20,5 +20,5 @@ $ pip install -r requirements.txt
 Volver a la raiz del repositorio computational_chess/
 
 ```shell
-$ python -m backend.app.app
+$ python -m app.app
 ```

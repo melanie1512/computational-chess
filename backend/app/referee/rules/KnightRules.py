@@ -1,6 +1,6 @@
-from backend.app.models.Position import Position
-from backend.app.models.Piece import Piece
-from backend.app.models.Types import TeamType
+from app.models.Position import Position
+from app.models.Piece import Piece
+from app.models.Types import TeamType
 from .GeneralRules import (
     tile_is_empty_or_occupied_by_opponent,
 )

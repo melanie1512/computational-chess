@@ -1,5 +1,6 @@
 import pytest
-from app.models import Piece, Position, PieceType, TeamType, Board
+from app.models.Piece import Piece, Position, PieceType, TeamType
+from app.models.Board import Board
 
 # Importamos las funciones de movimiento que hemos implementado
 

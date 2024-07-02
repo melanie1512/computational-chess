@@ -1,5 +1,5 @@
-from backend.app.models.Board import Position, TeamType
-from backend.app.models.Piece import Piece
+from app.models.Board import Position, TeamType
+from app.models.Piece import Piece
 from .GeneralRules import (
     tile_is_occupied,
     tile_is_occupied_by_opponent,
