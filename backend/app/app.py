@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
 from .database import init_db, db
-from .models.Board import Piece, Position
-
+from .models.Board import Board
+from .models.Position import Position
+from .models.Types import PieceType, TeamType
+from .models.Piece import Piece
 
 def create_app():
     app = Flask(__name__)
