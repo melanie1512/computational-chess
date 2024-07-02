@@ -1,5 +1,5 @@
-from backend.app.models.Board import Piece, Position, TeamType
-
+from backend.app.models.Board import Position, TeamType
+from backend.app.models.Piece import Piece
 
 def tile_is_occupied(position, board_state):
     """
