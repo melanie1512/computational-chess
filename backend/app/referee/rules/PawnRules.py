@@ -55,14 +55,14 @@ def get_possible_pawn_moves(pawn, board_state):
     possible_moves = []
     special_row = 1 if pawn.team == TeamType.OUR else 6
     pawn_direction = 1 if pawn.team == TeamType.OUR else -1
-
+    
     normal_move = Position(pawn.position.x, pawn.position.y + pawn_direction)
     special_move = Position(normal_move.x, normal_move.y + pawn_direction)
     upper_left_attack = Position(pawn.position.x - 1, pawn.position.y + pawn_direction)
     upper_right_attack = Position(pawn.position.x + 1, pawn.position.y + pawn_direction)
     left_position = Position(pawn.position.x - 1, pawn.position.y)
     right_position = Position(pawn.position.x + 1, pawn.position.y)
-
+    
     if not tile_is_occupied(normal_move, board_state):
         possible_moves.append(normal_move)
         if pawn.position.y == special_row and not tile_is_occupied(

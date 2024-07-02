@@ -1,7 +1,7 @@
 from app.models.Types import PieceType, TeamType
 from app.models.Position import Position
 
-from app.rules.rules import (
+from app.referee.rules.index import (
     get_possible_pawn_moves,
     get_possible_knight_moves,
     get_possible_bishop_moves,

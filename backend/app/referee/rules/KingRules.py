@@ -23,7 +23,7 @@ def king_move(initial_position, desired_position, team, board_state):
         )
 
         passed_position = Position(
-            initial_position + (i * multiplier_x),
+            initial_position.x + (i * multiplier_x),
             initial_position.y + (i * multiplier_y),
         )
 
