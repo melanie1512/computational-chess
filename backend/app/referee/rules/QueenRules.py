@@ -1,4 +1,5 @@
-from backend.app.models.Board import Piece, Position, TeamType, Pawn
+from backend.app.models.Board import Piece, Position, TeamType
+from backend.app.models.Pawn import Pawn
 from .GeneralRules import (
     tile_is_occupied,
     tile_is_occupied_by_opponent,
@@ -8,12 +9,11 @@ from typing import List
 
 
 def queen_move(
-    initial_position,
-    desired_position,
+    initial_position: Position,
+    desired_position: Position,
     team: str,
-    board_state,
+    board_state: List[Piece],
 ) -> bool:
-    from app.models import Position
     for i in range(1, 8):
         # Diagonal
         multiplier_x = (
@@ -44,9 +44,8 @@ def queen_move(
     return False
 
 
-def get_possible_queen_moves(queen, board_state):
-    from app.models import Position
-    possible_moves = []
+def get_possible_queen_moves(queen: Piece, board_state: List[Piece]):
+    possible_moves: List[Position] = []
 
     directions = [
         (0, 1),  # Arriba
@@ -56,14 +55,13 @@ def get_possible_queen_moves(queen, board_state):
         (1, 1),  # Derecha Arriba
         (1, -1),  # Abajo Derecha
         (-1, 1),  # Arriba Izquierda
-        (-1, -1),  # Abajo Izquierda
+        (-1, -1),  # Abajo izquierda
     ]
 
     for dx, dy in directions:
         for i in range(1, 8):
             destination = Position(queen.position.x + i * dx, queen.position.y + i * dy)
-            if destination.x < 1 or destination.x > 8 or destination.y < 1 or destination.y > 8:
-                break
+
             if not tile_is_occupied(destination, board_state):
                 possible_moves.append(destination)
             elif tile_is_occupied_by_opponent(destination, board_state, queen.team):
@@ -73,4 +71,3 @@ def get_possible_queen_moves(queen, board_state):
                 break
 
     return possible_moves
-

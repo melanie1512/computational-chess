@@ -8,7 +8,6 @@ from typing import List
 
 
 def bishop_move(initial_position, desired_position, team, board_state):
-    from app.models import Position
     for i in range(1, 8):
         # Movimiento a la derecha
         if (
@@ -81,31 +80,51 @@ def bishop_move(initial_position, desired_position, team, board_state):
     return False
 
 
-def get_possible_bishop_moves(bishop, board_state):
-    from app.models import Position
+def get_possible_bishop_moves(bishop, boardstate):
+    possible_moves: List[Position] = []
 
-    possible_moves = []
+    # Movimiento upper right
+    for i in range(1, 8):
+        destination = Position(bishop.position.x + i, bishop.position.y + i)
+        if not tile_is_occupied(destination, boardstate):
+            possible_moves.append(destination)
+        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
+            possible_moves.append(destination)
+            break
+        else:
+            break
 
-    directions = [
-        (1, 1), (1, -1), (-1, 1), (-1, -1)
-    ]
+    # Movimiento bottom right
+    for i in range(1, 8):
+        destination = Position(bishop.position.x + i, bishop.position.y - i)
+        if not tile_is_occupied(destination, boardstate):
+            possible_moves.append(destination)
+        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
+            possible_moves.append(destination)
+            break
+        else:
+            break
 
-    def is_valid_position(x, y):
-        return 1 <= x <= 8 and 1 <= y <= 8
+    # Movimiento bottom left
+    for i in range(1, 8):
+        destination = Position(bishop.position.x - i, bishop.position.y - i)
+        if not tile_is_occupied(destination, boardstate):
+            possible_moves.append(destination)
+        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
+            possible_moves.append(destination)
+            break
+        else:
+            break
 
-    for dx, dy in directions:
-        for i in range(1, 8):
-            destination_x = bishop.position.x + i * dx
-            destination_y = bishop.position.y + i * dy
-            if not is_valid_position(destination_x, destination_y):
-                break
-            destination = Position(destination_x, destination_y)
-            if not tile_is_occupied(destination, board_state):
-                possible_moves.append(destination)
-            elif tile_is_occupied_by_opponent(destination, board_state, bishop.team):
-                possible_moves.append(destination)
-                break
-            else:
-                break
+    # Movimiento top left
+    for i in range(1, 8):
+        destination = Position(bishop.position.x - i, bishop.position.y + i)
+        if not tile_is_occupied(destination, boardstate):
+            possible_moves.append(destination)
+        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
+            possible_moves.append(destination)
+            break
+        else:
+            break
 
     return possible_moves
