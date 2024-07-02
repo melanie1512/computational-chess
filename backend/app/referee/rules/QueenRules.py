@@ -1,4 +1,4 @@
-
+from backend.app.models.Board import Piece, Position, TeamType, Pawn
 from .GeneralRules import (
     tile_is_occupied,
     tile_is_occupied_by_opponent,

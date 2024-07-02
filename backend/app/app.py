@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from .database import init_db, db
-from .models import Piece, Position, Board, PieceType
+from .models.Board import Piece, Position
 
 
 def create_app():

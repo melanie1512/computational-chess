@@ -1,4 +1,4 @@
-
+from backend.app.models.Board import Piece, Position, TeamType
 from .GeneralRules import (
     tile_is_occupied,
     tile_is_occupied_by_opponent,
@@ -63,7 +63,7 @@ def get_possible_king_moves(king, board_state):
 
 
 def get_castling_moves(king, board_state):
-    from app.models import Piece, Position
+    from app.models.Position import Position
     possible_moves: List[Position] = []
 
     if king.has_moved() and not king.is_checked():

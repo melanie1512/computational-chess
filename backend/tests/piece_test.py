@@ -1,5 +1,5 @@
 import pytest
-from app.models import Piece, Position, PieceType, TeamType, Board
+from backend.app.models.Board import Piece, Position, PieceType, TeamType
 
 # Test Pawn
 
