@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from .database import init_db, db
+from .db.database import init_db, db
 from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType

@@ -1,4 +1,4 @@
-from ..database import db
+from ..db.database import db
 from .Types import PieceType, TeamType
 from .Position import Position
 

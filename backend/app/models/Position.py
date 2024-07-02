@@ -1,4 +1,4 @@
-from ..database import db
+from ..db.database import db
 
 class Position(db.Model):
     __tablename__ = "positions"

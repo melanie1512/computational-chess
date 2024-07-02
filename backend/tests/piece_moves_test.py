@@ -1,4 +1,3 @@
-import pytest
 from app.models.Piece import Piece, Position, PieceType, TeamType
 from app.models.Board import Board
 

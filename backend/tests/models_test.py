@@ -1,4 +1,3 @@
-import pytest
 from app.models.Board import Board, Position, PieceType, TeamType
 from app.models.Piece import Piece
 
@@ -17,7 +16,7 @@ def test_can_create_valid_position():
         pos = Position(x=1, y=8)
         assert pos is not None
     except Exception:
-        pytest.fail("Failed to create a valid position")
+        assert False, "Failed to create a valid position"
 
 
 def test_cannot_create_invalid_position():

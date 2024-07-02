@@ -1,7 +1,4 @@
 .PHONY: test coverage
 
 test:
-	pytest .
-
-coverage:
-	pytest --cov=tests
+	pytest ./tests/test.py
