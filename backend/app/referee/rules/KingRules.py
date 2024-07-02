@@ -38,7 +38,7 @@ def king_move(initial_position, desired_position, team, board_state):
     return False
 
 
-def get_possible_king_moves(king: Piece, board_state: List[Piece]):
+"""def get_possible_king_moves(king: Piece, board_state: List[Piece]):
     possible_moves: List[Position] = []
 
     # Movimiento hacia arriba
@@ -208,6 +208,31 @@ def get_possible_king_moves(king: Piece, board_state: List[Piece]):
             break
         else:
             break
+
+    return possible_moves"""
+
+def get_possible_king_moves(king, board_state):
+    
+    possible_moves = []
+
+    directions = [
+        (1, 0), (-1, 0), (0, 1), (0, -1),  # Movimientos horizontales y verticales
+        (1, 1), (-1, 1), (1, -1), (-1, -1)  # Movimientos diagonales
+    ]
+
+    def is_valid_position(x, y):
+        return 1 <= x <= 8 and 1 <= y <= 8
+
+    for dx, dy in directions:
+        destination_x = king.position.x + dx
+        destination_y = king.position.y + dy
+
+        if is_valid_position(destination_x, destination_y):
+            destination = Position(destination_x, destination_y)
+            if not tile_is_occupied(destination, board_state):
+                possible_moves.append(destination)
+            elif tile_is_occupied_by_opponent(destination, board_state, king.team):
+                possible_moves.append(destination)
 
     return possible_moves
 
