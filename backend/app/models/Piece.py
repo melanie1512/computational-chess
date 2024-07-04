@@ -1,6 +1,9 @@
 from ..db.database import db
 from .Types import PieceType, TeamType
 from .Position import Position
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.dialects.postgresql import JSON
+
 
 class Piece(db.Model):
     __tablename__ = "pieces"
@@ -12,7 +15,9 @@ class Piece(db.Model):
     team = db.Column(db.Integer, nullable=False)
     has_moved = db.Column(db.Boolean, default=False)
     is_checked = db.Column(db.Boolean, default=False)
-    possible_moves = None
+    possible_moves = db.relationship('Piece', backref='board', lazy=True, cascade="all, delete-orphan")
+    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
+    possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
 
     def __init__(
         self,

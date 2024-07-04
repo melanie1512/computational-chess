@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from .db.database import init_db, db
+from .db.database import db, setup_db
 from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType
@@ -7,7 +7,7 @@ from .models.Piece import Piece
 
 def create_app():
     app = Flask(__name__)
-    init_db(app)
+    setup_db(app, "postgresql://postgres:1234@localhost:5432/chess_db")
 
     with app.app_context():
         db.create_all()
@@ -55,7 +55,7 @@ def setup_board():
     ]
     return Board(pieces, total_turns=1)
 
-@app.route('/setup_board', methods=['POST'])
+@app.route('/setup_board', methods=['POST']) # done
 def setup_board_route():
     board = setup_board()
     db.session.add(board)
@@ -205,5 +205,5 @@ def play_move():
     return jsonify({'result': result})
 
 
-if __name__ == "__app__":
+if __name__ == "__main__":
     app.run(debug=True)

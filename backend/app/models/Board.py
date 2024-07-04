@@ -1,5 +1,6 @@
 from app.models.Types import PieceType, TeamType
 from app.models.Position import Position
+from app.db.database import db
 
 from app.referee.rules.index import (
     get_possible_pawn_moves,
@@ -12,8 +13,17 @@ from app.referee.rules.index import (
 )
 
 # Board:
-class Board:
+class Board(db.Model):
+    __tablename__ = 'board'
+
+    id = db.Column(db.Integer, primary_key=True)
+    pieces = db.relationship('Piece', backref='board', lazy=True, cascade="all, delete-orphan")
+    total_turns = db.Column(db.Integer, nullable = False, default = 0)
+    winning_team = db.Column(db.String, nullable = True)
+
     def __init__(self, pieces, total_turns):
+        if pieces is None:
+            self.pieces = []
         self.pieces = pieces
         self.total_turns = total_turns
         self.winning_team = None
