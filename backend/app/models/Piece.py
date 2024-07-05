@@ -73,7 +73,7 @@ class Piece(db.Model, ModelMixin):
         return self.position.same_position(other_piece.position)
 
     def same_position(self, other_position):
-        return self.position.same_position(other_position)
+        return self.position.x == other_position.x and self.position.y == other_position.y
 
     def clone(self):
         return Piece(

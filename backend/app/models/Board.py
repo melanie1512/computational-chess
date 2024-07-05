@@ -206,5 +206,6 @@ class Board(db.Model, ModelMixin):
             return False
         return True
 
+
     def clone(self):
         return Board([piece.clone() for piece in self.pieces], self.total_turns)

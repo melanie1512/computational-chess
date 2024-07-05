@@ -73,7 +73,7 @@ def move_piece():
     team = data["team"]
 
     # Busca la pieza que se desea mover en la base de datos
-    piece = (
+    position_piece = (
         db.session.query(Position, Piece)
         .join(Piece, Position.id == Piece.position_id)
         .filter(
@@ -85,25 +85,28 @@ def move_piece():
         .first()
     )
 
-    if piece:
+    if position_piece:
+        position, piece = position_piece
         # Verifica si el movimiento es válido para la pieza
-        if end_pos in [move.clone() for move in piece.possible_moves]:
-            # Realiza el movimiento en el tablero
-            board = (
-                Board.query.first()
-            )  # Suponiendo que solo hay un tablero en la base de datos
-            if board.play_move(
-                en_passant_move=False,
-                valid_move=True,
-                played_piece=piece,
-                destination=end_pos,
-            ):
-                db.session.commit()
-                return jsonify({"message": "Piece moved successfully"}), 200
+        for move in piece.possible_moves:
+            goal = Position.from_dict(move).clone()
+            if (end_pos.same_position(goal)):
+                # Realiza el movimiento en el tablero
+                board = (
+                    Board.query.first()
+                )  # Suponiendo que solo hay un tablero en la base de datos
+                if board.play_move(
+                    en_passant_move=False,
+                    valid_move=True,
+                    played_piece=piece,
+                    destination=end_pos,
+                ):
+                    db.session.commit()
+                    return jsonify({"message": "Piece moved successfully"}), 200
+                else:
+                    return jsonify({"error": "Invalid move"}), 400
             else:
-                return jsonify({"error": "Invalid move"}), 400
-        else:
-            return jsonify({"error": "Invalid move for this piece"}), 400
+                return jsonify({"error": "Invalid move for this piece"}), 400
     else:
         return jsonify({"error": "Piece not found or invalid move"}), 400
 
