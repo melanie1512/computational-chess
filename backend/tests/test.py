@@ -10,7 +10,8 @@ load_dotenv()
 from app import create_app
 from app.db.database import setup_db
 
-class Test():
+
+class Test:
     def setUp(self):
         self.app = create_app()
         self.path = os.getenv("SQLALCHEMY_DATABASE_URI")
@@ -59,7 +60,10 @@ class Test():
         test_board_get_valid_moves()
         assert True
 
+
 T = Test()
+
+
 def testing_all():
     T.test_all()
     assert True

@@ -3,9 +3,15 @@ from .Types import PieceType, TeamType
 from .Position import Position
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.ext.declarative import declared_attr
 
 
-class Piece(db.Model):
+class ModelMixin:
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Piece(db.Model, ModelMixin):
     __tablename__ = "pieces"
     id = db.Column(db.Integer, primary_key=True)
     image = db.Column(db.String, nullable=False)
@@ -15,8 +21,10 @@ class Piece(db.Model):
     team = db.Column(db.Integer, nullable=False)
     has_moved = db.Column(db.Boolean, default=False)
     is_checked = db.Column(db.Boolean, default=False)
-    possible_moves = db.relationship('Piece', backref='board', lazy=True, cascade="all, delete-orphan")
-    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
+    possible_moves = db.relationship(
+        "Piece", backref="board", lazy=True, cascade="all, delete-orphan"
+    )
+    board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
 
     def __init__(
@@ -73,5 +81,7 @@ class Piece(db.Model):
             type=self.type,
             team=self.team,
             has_moved=self.has_moved,
-            possible_moves=[pos.clone() for pos in self.possible_moves],
+            possible_moves=[
+                Position.from_dict(pos).clone() for pos in self.possible_moves
+            ],
         )

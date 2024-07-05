@@ -53,19 +53,19 @@ def knight_move(
 
     return possible_moves"""
 
+
 def get_possible_knight_moves(knight, board_state):
     possible_moves = []
 
-    moves = [
-        (2, 1), (2, -1), (-2, 1), (-2, -1),
-        (1, 2), (1, -2), (-1, 2), (-1, -2)
-    ]
+    moves = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2)]
 
     for dx, dy in moves:
-        destination = Position(knight.position.x + dx, knight.position.y + dy)
-        if destination.x < 1 or destination.x > 8 or destination.y < 1 or destination.y > 8:
+        new_x = knight.position.x + dx
+        new_y = knight.position.y + dy
+        if new_x < 1 or new_x > 8 or new_y < 1 or new_y > 8:
             continue
+        destination = Position(new_x, new_y)
         if tile_is_empty_or_occupied_by_opponent(destination, board_state, knight.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
 
     return possible_moves

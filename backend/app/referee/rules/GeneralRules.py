@@ -1,6 +1,7 @@
 from app.models.Board import Position, TeamType
 from app.models.Piece import Piece
 
+
 def tile_is_occupied(position, board_state):
     """
     Verifica si una posición está ocupada por alguna pieza en el estado actual del tablero.

@@ -211,13 +211,20 @@ def king_move(initial_position, desired_position, team, board_state):
 
     return possible_moves"""
 
+
 def get_possible_king_moves(king, board_state):
-    
+
     possible_moves = []
 
     directions = [
-        (1, 0), (-1, 0), (0, 1), (0, -1),  # Movimientos horizontales y verticales
-        (1, 1), (-1, 1), (1, -1), (-1, -1)  # Movimientos diagonales
+        (1, 0),
+        (-1, 0),
+        (0, 1),
+        (0, -1),  # Movimientos horizontales y verticales
+        (1, 1),
+        (-1, 1),
+        (1, -1),
+        (-1, -1),  # Movimientos diagonales
     ]
 
     def is_valid_position(x, y):
@@ -240,7 +247,7 @@ def get_possible_king_moves(king, board_state):
 def get_castling_moves(king: Piece, board_state: List[Piece]):
     possible_moves: List[Position] = []
 
-    if king.has_moved() and not king.is_checked():
+    if king.has_moved and not king.is_checked:
         return possible_moves
 
     # Sacamos las torres del equipo del rey que no se han movido
@@ -285,6 +292,6 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
             continue
 
         # Ahora queremos agregarla como un movimiento posible
-        possible_moves.append(rook.position.clone())
+        possible_moves.append(rook.position.clone().to_dict())
 
     return possible_moves
