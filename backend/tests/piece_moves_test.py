@@ -117,21 +117,22 @@ def test_rook_blocked_move():
 
 
 # Test que el movimiento no salga del tablero
-# def test_stay_within_board():
-#     rook = Piece(Position(8, 1), PieceType.ROOK, TeamType.OUR)
-#     board = Board([rook], 0)
-#     assert all(
-#         1 <= move.x <= 8 and 1 <= move.y <= 8
-#         for move in board.get_valid_moves(rook, board.pieces)
-#     )
+def test_stay_within_board():
+    rook = Piece(Position(8, 1), PieceType.ROOK, TeamType.OUR)
+    board = Board([rook], 0)
+    assert all(
+        1 <= move["x"] <= 8 and 1 <= move["y"] <= 8
+        for move in board.get_valid_moves(rook, board.pieces)
+    )
 
 
-# # Test que no haya superposición después de mover
-# def test_no_overlap_after_move():
-#     pawn1 = Piece(Position(1, 2), PieceType.PAWN, TeamType.OUR)
-#     pawn2 = Piece(Position(1, 4), PieceType.PAWN, TeamType.OUR)
-#     board = Board([pawn1, pawn2], 0)
-#     assert all(
-#         not move.same_position(Position(1, 4))
-#         for move in board.get_valid_moves(pawn1, board.pieces)
-#     )
+# Test que no haya superposición después de mover
+def test_no_overlap_after_move():
+    pawn1 = Piece(Position(1, 2), PieceType.PAWN, TeamType.OUR)
+    pawn2 = Piece(Position(1, 4), PieceType.PAWN, TeamType.OUR)
+    board = Board([pawn1, pawn2], 0)
+
+    assert all(
+        not Position.from_dict(move).same_position(Position(1, 4))
+        for move in board.get_valid_moves(pawn1, board.pieces)
+    )
