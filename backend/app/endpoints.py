@@ -23,6 +23,7 @@ app = create_app()
 def utility_processor():
     return dict(enumerate=enumerate)
 
+
 def setup_board():
     # initializing pieces
     pieces = [
@@ -94,7 +95,7 @@ def move_piece():
         # Verifica si el movimiento es válido para la pieza
         for move in piece.possible_moves:
             goal = Position.from_dict(move).clone()
-            if (end_pos.same_position(goal)):
+            if end_pos.same_position(goal):
                 # Realiza el movimiento en el tablero
                 board = (
                     Board.query.first()
@@ -242,7 +243,8 @@ def play_move():
     db.session.commit()
     return jsonify({"result": result})
 
-@app.route("/show_board/<int:board_id>", methods = ["GET"])
+
+@app.route("/show_board/<int:board_id>", methods=["GET"])
 def show_board(board_id):
     # tablero a retornar
     board_arr = []
@@ -257,9 +259,7 @@ def show_board(board_id):
     position_piece = (
         db.session.query(Position, Piece)
         .join(Piece, Position.id == Piece.position_id)
-        .filter(
-            Piece.board_id == board_id
-        )
+        .filter(Piece.board_id == board_id)
     )
 
     for pos, pie in position_piece:
@@ -268,14 +268,11 @@ def show_board(board_id):
 
         board_arr[i][j] = pie.to_char()
 
-    in_del, out_del = " ", '\n'
+    in_del, out_del = " ", "\n"
 
     board = out_del.join([in_del.join([ele for ele in sub]) for sub in board_arr])
 
     return render_template("board.html", board=board_arr)
-
-
-    
 
 
 if __name__ == "__main__":

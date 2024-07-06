@@ -264,12 +264,17 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
 
         if not (
             rook.possible_moves
-            and any(Position.from_dict(m).same_position(adjacent_position) for m in rook.possible_moves)
+            and any(
+                Position.from_dict(m).same_position(adjacent_position)
+                for m in rook.possible_moves
+            )
         ):
             continue
 
         # Sabemos que la torre puede moverse al lado adyacente del rey
-        concerning_tiles = [m for m in rook.possible_moves if Position.from_dict(m).y == king.position.y]
+        concerning_tiles = [
+            m for m in rook.possible_moves if Position.from_dict(m).y == king.position.y
+        ]
 
         # Verificamos si alguna de las piezas enemigas puede atacar los espacios entre la torre y el rey
         enemy_pieces = [p for p in board_state if p.team != king.team]
@@ -281,7 +286,9 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
                 continue
 
             for move in enemy.possible_moves:
-                if any(Position.from_dict(t).same_position(move) for t in concerning_tiles):
+                if any(
+                    Position.from_dict(t).same_position(move) for t in concerning_tiles
+                ):
                     valid = False
                     break
 

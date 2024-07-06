@@ -73,7 +73,9 @@ class Piece(db.Model, ModelMixin):
         return self.position.same_position(other_piece.position)
 
     def same_position(self, other_position):
-        return self.position.x == other_position.x and self.position.y == other_position.y
+        return (
+            self.position.x == other_position.x and self.position.y == other_position.y
+        )
 
     def clone(self):
         return Piece(
@@ -85,7 +87,7 @@ class Piece(db.Model, ModelMixin):
                 Position.from_dict(pos).clone() for pos in self.possible_moves
             ],
         )
-    
+
     def to_char(self):
         if self.team == 1:
             if self.is_pawn:
@@ -113,4 +115,3 @@ class Piece(db.Model, ModelMixin):
                 return "♛"
             elif self.is_king:
                 return "♚"
-
