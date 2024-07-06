@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, Blueprint
 from .db.database import db, setup_db
 from .models.Board import Board
 from .models.Position import Position
@@ -6,17 +6,7 @@ from .models.Types import PieceType, TeamType
 from .models.Piece import Piece
 
 
-def create_app():
-    app = Flask(__name__)
-    setup_db(app, "postgresql://postgres:1234@localhost:5432/chess_db")
-
-    with app.app_context():
-        db.create_all()
-
-    return app
-
-
-app = create_app()
+app = Blueprint('simple_page', __name__, template_folder='templates')
 
 
 @app.context_processor

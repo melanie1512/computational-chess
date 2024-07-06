@@ -8,4 +8,4 @@ coverage:
 	pytest --cov=tests
 
 run:
-	python3 -m app.endpoints
+	flask run
