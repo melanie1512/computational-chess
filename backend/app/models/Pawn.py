@@ -1,5 +1,6 @@
 from app.models.Piece import Piece
 from app.models.Types import PieceType
+
 # Pawn
 
 

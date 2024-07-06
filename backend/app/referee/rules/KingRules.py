@@ -211,13 +211,20 @@ def king_move(initial_position, desired_position, team, board_state):
 
     return possible_moves"""
 
+
 def get_possible_king_moves(king, board_state):
-    
+
     possible_moves = []
 
     directions = [
-        (1, 0), (-1, 0), (0, 1), (0, -1),  # Movimientos horizontales y verticales
-        (1, 1), (-1, 1), (1, -1), (-1, -1)  # Movimientos diagonales
+        (1, 0),
+        (-1, 0),
+        (0, 1),
+        (0, -1),  # Movimientos horizontales y verticales
+        (1, 1),
+        (-1, 1),
+        (1, -1),
+        (-1, -1),  # Movimientos diagonales
     ]
 
     def is_valid_position(x, y):
@@ -240,7 +247,7 @@ def get_possible_king_moves(king, board_state):
 def get_castling_moves(king: Piece, board_state: List[Piece]):
     possible_moves: List[Position] = []
 
-    if king.has_moved() and not king.is_checked():
+    if king.has_moved and not king.is_checked:
         return possible_moves
 
     # Sacamos las torres del equipo del rey que no se han movido
@@ -257,12 +264,17 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
 
         if not (
             rook.possible_moves
-            and any(m.same_position(adjacent_position) for m in rook.possible_moves)
+            and any(
+                Position.from_dict(m).same_position(adjacent_position)
+                for m in rook.possible_moves
+            )
         ):
             continue
 
         # Sabemos que la torre puede moverse al lado adyacente del rey
-        concerning_tiles = [m for m in rook.possible_moves if m.y == king.position.y]
+        concerning_tiles = [
+            m for m in rook.possible_moves if Position.from_dict(m).y == king.position.y
+        ]
 
         # Verificamos si alguna de las piezas enemigas puede atacar los espacios entre la torre y el rey
         enemy_pieces = [p for p in board_state if p.team != king.team]
@@ -274,7 +286,9 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
                 continue
 
             for move in enemy.possible_moves:
-                if any(t.same_position(move) for t in concerning_tiles):
+                if any(
+                    Position.from_dict(t).same_position(move) for t in concerning_tiles
+                ):
                     valid = False
                     break
 
@@ -285,6 +299,6 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
             continue
 
         # Ahora queremos agregarla como un movimiento posible
-        possible_moves.append(rook.position.clone())
+        possible_moves.append(rook.position.clone().to_dict())
 
     return possible_moves

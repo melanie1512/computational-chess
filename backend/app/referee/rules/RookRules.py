@@ -111,6 +111,7 @@ def rook_move(
 
     return possible_moves"""
 
+
 def get_possible_rook_moves(rook, board_state):
     possible_moves = []
 
@@ -120,9 +121,9 @@ def get_possible_rook_moves(rook, board_state):
             break
         destination = Position(rook.position.x, rook.position.y + i)
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -133,9 +134,9 @@ def get_possible_rook_moves(rook, board_state):
             break
         destination = Position(rook.position.x, rook.position.y - i)
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -146,9 +147,9 @@ def get_possible_rook_moves(rook, board_state):
             break
         destination = Position(rook.position.x - i, rook.position.y)
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -159,9 +160,9 @@ def get_possible_rook_moves(rook, board_state):
             break
         destination = Position(rook.position.x + i, rook.position.y)
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break

@@ -80,12 +80,11 @@ def bishop_move(initial_position, desired_position, team, board_state):
                     break
     return False
 
+
 def get_possible_bishop_moves(bishop, board_state):
     possible_moves = []
 
-    directions = [
-        (1, 1), (1, -1), (-1, 1), (-1, -1)
-    ]
+    directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
     def is_valid_position(x, y):
         return 1 <= x <= 8 and 1 <= y <= 8
@@ -98,14 +97,15 @@ def get_possible_bishop_moves(bishop, board_state):
                 break
             destination = Position(destination_x, destination_y)
             if not tile_is_occupied(destination, board_state):
-                possible_moves.append(destination)
+                possible_moves.append(destination.to_dict())
             elif tile_is_occupied_by_opponent(destination, board_state, bishop.team):
-                possible_moves.append(destination)
+                possible_moves.append(destination.to_dict())
                 break
             else:
                 break
 
     return possible_moves
+
 
 """def get_possible_bishop_moves(bishop, boardstate):
     possible_moves: List[Position] = []

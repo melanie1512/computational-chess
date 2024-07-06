@@ -1,5 +1,6 @@
 from app.models.Types import PieceType, TeamType
 from app.models.Position import Position
+from app.db.database import db
 
 from app.referee.rules.index import (
     get_possible_pawn_moves,
@@ -11,48 +12,78 @@ from app.referee.rules.index import (
     get_castling_moves,
 )
 
+from sqlalchemy.ext.declarative import declared_attr
+
+
+class ModelMixin:
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
 # Board:
-class Board:
+class Board(db.Model, ModelMixin):
+    __tablename__ = "board"
+
+    id = db.Column(db.Integer, primary_key=True)
+    pieces = db.relationship(
+        "Piece", backref="board", lazy=True, cascade="all, delete-orphan"
+    )
+    total_turns = db.Column(db.Integer, nullable=False, default=0)
+    winning_team = db.Column(db.String, nullable=True)
+
     def __init__(self, pieces, total_turns):
+        if pieces is None:
+            self.pieces = []
         self.pieces = pieces
         self.total_turns = total_turns
         self.winning_team = None
 
     @property
     def current_team(self):
-        return TeamType.OPPONENT if self.total_turns % 2 == 0 else TeamType.OUR #se puede cambiar para modificar color de pieza
+        return (
+            TeamType.OPPONENT if self.total_turns % 2 == 0 else TeamType.OUR
+        )  # se puede cambiar para modificar color de pieza
 
     def calculate_all_moves(self):
-        for piece in self.pieces:
-            piece.possible_moves = self.get_valid_moves(piece, self.pieces)
-        for king in filter(lambda p: p.is_king, self.pieces):
-            if king.possible_moves is not None:
-                king.possible_moves.extend(get_castling_moves(king, self.pieces))
-        self.check_current_team_moves()
-        for piece in filter(lambda p: p.team != self.current_team, self.pieces):
-            piece.possible_moves = []
-        if not any(
-            p.possible_moves
-            for p in filter(lambda p: p.team == self.current_team, self.pieces)
-        ):
-            king = next(
-                filter(lambda p: p.is_king and p.team == self.current_team, self.pieces)
-            )
-            self.winning_team = (
-                TeamType.DRAW
-                if not king.is_checked
-                else (
-                    TeamType.OPPONENT
-                    if self.current_team == TeamType.OUR
-                    else TeamType.OUR
+        try:
+            for piece in self.pieces:
+                piece.possible_moves = self.get_valid_moves(piece, self.pieces)
+            for king in filter(lambda p: p.is_king, self.pieces):
+                if king.possible_moves is not None:
+                    king.possible_moves.extend(get_castling_moves(king, self.pieces))
+            self.check_current_team_moves()
+            for piece in filter(lambda p: p.team != self.current_team, self.pieces):
+                piece.possible_moves = []
+            if not any(
+                p.possible_moves
+                for p in filter(lambda p: p.team == self.current_team, self.pieces)
+            ):
+                king = next(
+                    filter(
+                        lambda p: p.is_king and p.team == self.current_team, self.pieces
+                    )
                 )
-            )
+                self.winning_team = (
+                    TeamType.DRAW
+                    if not king.is_checked
+                    else (
+                        TeamType.OPPONENT
+                        if self.current_team == TeamType.OUR
+                        else TeamType.OUR
+                    )
+                )
+        except Exception as e:
+            print(f"Error during calculate_all_moves: {e}")
+            raise
 
     def check_current_team_moves(self):
         for piece in filter(lambda p: p.team == self.current_team, self.pieces):
             if piece.possible_moves is None:
                 continue
-            for move in piece.possible_moves:
+            for move_dict in piece.possible_moves:
+                move = Position.from_dict(
+                    move_dict
+                )  # Convert dictionary back to Position object
                 simulated_board = self.clone()
                 simulated_board.pieces = [
                     p for p in simulated_board.pieces if not p.same_position(move)
@@ -60,7 +91,7 @@ class Board:
                 cloned_piece = next(
                     p for p in simulated_board.pieces if p.same_piece_position(piece)
                 )
-                cloned_piece.position = move.clone()
+                cloned_piece.position = move.clone()  # Use the clone method
                 cloned_king = next(
                     p
                     for p in simulated_board.pieces
@@ -74,31 +105,40 @@ class Board:
                         enemy, simulated_board.pieces
                     )
                     if enemy.is_pawn and any(
-                        m.x != enemy.position.x
-                        and m.same_position(cloned_king.position)
+                        Position.from_dict(m).x != enemy.position.x
+                        and Position.from_dict(m).same_position(cloned_king.position)
                         for m in enemy.possible_moves
                     ):
                         piece.possible_moves = [
-                            m for m in piece.possible_moves if not m.same_position(move)
+                            m
+                            for m in piece.possible_moves
+                            if not Position.from_dict(m).same_position(move)
                         ]
                     elif any(
-                        m.same_position(cloned_king.position)
+                        Position.from_dict(m).same_position(cloned_king.position)
                         for m in enemy.possible_moves
                     ):
                         piece.possible_moves = [
-                            m for m in piece.possible_moves if not m.same_position(move)
+                            m
+                            for m in piece.possible_moves
+                            if not Position.from_dict(m).same_position(move)
                         ]
             king = next(
                 p for p in self.pieces if p.is_king and p.team == self.current_team
             )
             for enemy in filter(lambda p: p.team != self.current_team, self.pieces):
                 enemy.possible_moves = self.get_valid_moves(enemy, self.pieces)
+
                 if enemy.is_pawn and any(
-                    m.x != enemy.position.x and m.same_position(king.position)
+                    m["x"] != enemy.position.x
+                    and Position.from_dict(m).same_position(king.position)
                     for m in enemy.possible_moves
                 ):
                     king.is_checked = True
-                elif any(m.same_position(king.position) for m in enemy.possible_moves):
+                elif any(
+                    Position.from_dict(m).same_position(king.position)
+                    for m in enemy.possible_moves
+                ):
                     king.is_checked = True
 
     def get_valid_moves(self, piece, board_state):

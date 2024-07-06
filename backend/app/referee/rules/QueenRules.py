@@ -73,6 +73,7 @@ def queen_move(
 
     return possible_moves"""
 
+
 def get_possible_queen_moves(queen, board_state):
     possible_moves = []
 
@@ -89,13 +90,15 @@ def get_possible_queen_moves(queen, board_state):
 
     for dx, dy in directions:
         for i in range(1, 8):
-            destination = Position(queen.position.x + i * dx, queen.position.y + i * dy)
-            if destination.x < 1 or destination.x > 8 or destination.y < 1 or destination.y > 8:
+            new_x = queen.position.x + i * dx
+            new_y = queen.position.y + i * dy
+            if new_x < 1 or new_x > 8 or new_y < 1 or new_y > 8:
                 break
+            destination = Position(new_x, new_y)
             if not tile_is_occupied(destination, board_state):
-                possible_moves.append(destination)
+                possible_moves.append(destination.to_dict())
             elif tile_is_occupied_by_opponent(destination, board_state, queen.team):
-                possible_moves.append(destination)
+                possible_moves.append(destination.to_dict())
                 break
             else:
                 break

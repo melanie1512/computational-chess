@@ -1,6 +1,13 @@
 from ..db.database import db
+from sqlalchemy.ext.declarative import declared_attr
 
-class Position(db.Model):
+
+class ModelMixin:
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Position(db.Model, ModelMixin):
     __tablename__ = "positions"
     id = db.Column(db.Integer, primary_key=True)
     x = db.Column(db.Integer, nullable=False)
@@ -23,3 +30,7 @@ class Position(db.Model):
             return True
         else:
             return False
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(x=data["x"], y=data["y"])
