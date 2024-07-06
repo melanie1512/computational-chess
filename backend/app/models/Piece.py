@@ -85,3 +85,32 @@ class Piece(db.Model, ModelMixin):
                 Position.from_dict(pos).clone() for pos in self.possible_moves
             ],
         )
+    
+    def to_char(self):
+        if self.team == 1:
+            if self.is_pawn:
+                return "♙"
+            elif self.is_knight:
+                return "♘"
+            elif self.is_bishop:
+                return "♗"
+            elif self.is_rook:
+                return "♖"
+            elif self.is_queen:
+                return "♕"
+            elif self.is_king:
+                return "♔"
+        else:
+            if self.is_pawn:
+                return "♟︎"
+            elif self.is_knight:
+                return "♞"
+            elif self.is_bishop:
+                return "♝"
+            elif self.is_rook:
+                return "♜"
+            elif self.is_queen:
+                return "♛"
+            elif self.is_king:
+                return "♚"
+

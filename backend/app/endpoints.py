@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from .db.database import db, setup_db
 from .models.Board import Board
 from .models.Position import Position
@@ -18,6 +18,10 @@ def create_app():
 
 app = create_app()
 
+
+@app.context_processor
+def utility_processor():
+    return dict(enumerate=enumerate)
 
 def setup_board():
     # initializing pieces
@@ -237,6 +241,41 @@ def play_move():
     result = board.play_move(en_passant_move, valid_move, played_piece, destination)
     db.session.commit()
     return jsonify({"result": result})
+
+@app.route("/show_board/<int:board_id>", methods = ["GET"])
+def show_board(board_id):
+    # tablero a retornar
+    board_arr = []
+    for i in range(8):
+        temp = []
+        for j in range(8):
+            temp.append(" ")
+        board_arr.append(temp)
+
+    # obtener las piezas del tablero y sus posiciones
+
+    position_piece = (
+        db.session.query(Position, Piece)
+        .join(Piece, Position.id == Piece.position_id)
+        .filter(
+            Piece.board_id == board_id
+        )
+    )
+
+    for pos, pie in position_piece:
+        i = pos.y - 1
+        j = pos.x - 1
+
+        board_arr[i][j] = pie.to_char()
+
+    in_del, out_del = " ", '\n'
+
+    board = out_del.join([in_del.join([ele for ele in sub]) for sub in board_arr])
+
+    return render_template("board.html", board=board_arr)
+
+
+    
 
 
 if __name__ == "__main__":
