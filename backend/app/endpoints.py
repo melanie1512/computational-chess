@@ -62,20 +62,29 @@ def setup_board():
     ]
     return Board(pieces, total_turns=1)
 
-
 @app.route("/setup_board", methods=["POST"])  # done
 def setup_board_route():
     board = setup_board()
+    # para debug
+    board.id = 1
     db.session.add(board)
     db.session.commit()
     return jsonify({"message": "Board setup completed"}), 200
 
+
+@app.route("/delete_board/<int:board_id>", methods=["DELETE"])
+def delete_board(board_id):
+    board = Board.query.get_or_404(board_id)
+    db.session.delete(board)
+    db.session.commit()
+    return jsonify({"message": "Board deleted successfully"}), 200
 
 @app.route("/move_piece", methods=["POST"])
 def move_piece():
     data = request.json
     end_pos = Position(data["end_pos"][0], data["end_pos"][1])
     team = data["team"]
+    board_id = data["board_id"]
 
     # Busca la pieza que se desea mover en la base de datos
     position_piece = (
@@ -84,8 +93,8 @@ def move_piece():
         .filter(
             Position.x == data["start_pos"][0],
             Position.y == data["start_pos"][1],
-            Piece.team == data["team"],
-            Piece.board_id == data["board_id"],
+            Piece.team == team,
+            Piece.board_id == board_id,
         )
         .first()
     )
