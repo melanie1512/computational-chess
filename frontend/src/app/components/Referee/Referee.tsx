@@ -29,6 +29,7 @@ export default function Referee() {
                 }
                 console.log(piece)
                 const newBoard = new Board(piece, 1);
+                newBoard.calculateAllMoves();
                 setBoard(newBoard);
             })
             .catch(error => console.error('Failed to fetch board:', error));
