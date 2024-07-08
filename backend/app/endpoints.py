@@ -62,14 +62,56 @@ def setup_board():
     ]
     return Board(pieces, total_turns=1)
 
-@app.route("/setup_board", methods=["POST"])  # done
+
+@app.route("/")
+def index():
+    # Verificar si ya existe un tablero
+    board = Board.query.first()
+    if not board:
+        # Si no existe, crear un nuevo tablero
+        board = setup_board()
+        board.id = 1
+        db.session.add(board)
+        db.session.commit()
+    return render_template("index.html", board_id=board.id)
+
+@app.route("/setup_board", methods=["POST"])
 def setup_board_route():
     board = setup_board()
-    # para debug
     board.id = 1
     db.session.add(board)
     db.session.commit()
     return jsonify({"message": "Board setup completed"}), 200
+
+@app.route("/reset_board/<int:board_id>", methods=["POST"])
+def reset_board(board_id):
+    board = Board.query.get_or_404(board_id)
+    db.session.delete(board)
+    db.session.commit()
+    board = setup_board()
+    board.id = 1
+    db.session.add(board)
+    db.session.commit()
+    return jsonify({"message": "Board reset completed"}), 200
+
+@app.route("/show_board/<int:board_id>", methods=["GET"])
+def show_board(board_id):
+    # Tablero a retornar
+    board_arr = [[" " for _ in range(8)] for _ in range(8)]
+
+    # Obtener las piezas del tablero y sus posiciones
+    position_piece = (
+        db.session.query(Position, Piece)
+        .join(Piece, Position.id == Piece.position_id)
+        .filter(Piece.board_id == board_id)
+    )
+
+    for pos, pie in position_piece:
+        i = pos.y - 1
+        j = pos.x - 1
+        board_arr[i][j] = pie.to_char()
+
+    return jsonify({"board": board_arr})
 
 
 @app.route("/delete_board/<int:board_id>", methods=["DELETE"])
@@ -78,6 +120,7 @@ def delete_board(board_id):
     db.session.delete(board)
     db.session.commit()
     return jsonify({"message": "Board deleted successfully"}), 200
+
 
 @app.route("/move_piece", methods=["POST"])
 def move_piece():
@@ -124,6 +167,13 @@ def move_piece():
     else:
         return jsonify({"error": "Piece not found or invalid move"}), 400
 
+# Endpoint para calcular todos los movimientos posibles
+@app.route("/board/calculate_moves", methods=["POST"])
+def calculate_all_moves():
+    board = Board.query.first()  # Asumimos que solo hay un tablero
+    board.calculate_all_moves()
+    db.session.commit()
+    return jsonify(board.to_dict())
 
 # Endpoint para obtener todas las posiciones
 @app.route("/positions", methods=["GET"])
@@ -229,16 +279,6 @@ def get_board():
     board = Board.query.first()  # Asumimos que solo hay un tablero
     return jsonify(board.to_dict())
 
-
-# Endpoint para calcular todos los movimientos posibles
-@app.route("/board/calculate_moves", methods=["POST"])
-def calculate_all_moves():
-    board = Board.query.first()  # Asumimos que solo hay un tablero
-    board.calculate_all_moves()
-    db.session.commit()
-    return jsonify(board.to_dict())
-
-
 # Endpoint para jugar un movimiento
 @app.route("/board/play_move", methods=["POST"])
 def play_move():
@@ -251,37 +291,6 @@ def play_move():
     result = board.play_move(en_passant_move, valid_move, played_piece, destination)
     db.session.commit()
     return jsonify({"result": result})
-
-
-@app.route("/show_board/<int:board_id>", methods=["GET"])
-def show_board(board_id):
-    # tablero a retornar
-    board_arr = []
-    for i in range(8):
-        temp = []
-        for j in range(8):
-            temp.append(" ")
-        board_arr.append(temp)
-
-    # obtener las piezas del tablero y sus posiciones
-
-    position_piece = (
-        db.session.query(Position, Piece)
-        .join(Piece, Position.id == Piece.position_id)
-        .filter(Piece.board_id == board_id)
-    )
-
-    for pos, pie in position_piece:
-        i = pos.y - 1
-        j = pos.x - 1
-
-        board_arr[i][j] = pie.to_char()
-
-    in_del, out_del = " ", "\n"
-
-    board = out_del.join([in_del.join([ele for ele in sub]) for sub in board_arr])
-
-    return render_template("board.html", board=board_arr)
 
 
 if __name__ == "__main__":
