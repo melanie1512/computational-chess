@@ -4,11 +4,15 @@ from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType
 from .models.Piece import Piece
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)
-    setup_db(app, "postgresql://postgres:1234@localhost:5432/chess_db")
+    path = os.getenv("SQLALCHEMY_DATABASE_URI")
+    setup_db(app, path)
 
     with app.app_context():
         db.create_all()
@@ -71,6 +75,7 @@ def index():
         # Si no existe, crear un nuevo tablero
         board = setup_board()
         board.id = 1
+        
         db.session.add(board)
         db.session.commit()
     return render_template("index.html", board_id=board.id)
