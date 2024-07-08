@@ -5,12 +5,36 @@ import { initialBoard } from "../../Constants";
 import { Piece, Position } from "../../models";
 import { Board } from "../../models/Board";
 import { Pawn } from "../../models/Pawn";
+import axios from 'axios';
 import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove } from "../../referee/rules";
 import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/Chessboard";
 
 export default function Referee() {
-    const [board, setBoard] = useState<Board>(initialBoard.clone());
+    
+    const [board, setBoard] = useState<Board>(new Board([], 1));
+    
+    useEffect(() => {
+        axios.get(`http://127.0.0.1:5000/show_boards/1`)
+            .then(response => {
+                let piece_ = response.data["board"]
+                console.log(piece_, "piece_")
+                let piece = []
+                for (let i = 0; i < piece_.length; i++) {
+                    let position = new Position(piece_[i][0][1], piece_[i][0][0])
+                    let type = piece_[i][1]
+                    let team = piece_[i][2]
+                    let hasMoved = false
+                    piece.push(new Piece(position, type, team, hasMoved))
+                }
+                console.log(piece)
+                const newBoard = new Board(piece, 1);
+                setBoard(newBoard);
+            })
+            .catch(error => console.error('Failed to fetch board:', error));
+    }, []);
+ 
+
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
