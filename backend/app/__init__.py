@@ -1,29 +1,29 @@
-from .db.database import db
+from .db.database import db, migrate
 from flask import Flask, render_template
 from .config.config import Config
-from flask import Flask, jsonify, request, render_template
-from .db.database import db, setup_db
-from .models.Board import Board
-from .models.Position import Position
-from .models.Types import PieceType, TeamType
-from .models.Piece import Piece
-from dotenv import load_dotenv
-import os
-from .endpoints import app as endpoints
-
-load_dotenv()
+from .endpoints import app as homeViews
 
 def create_app():
     app = Flask(__name__)
     
     path = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config.from_object(Config)
-    setup_db(app, path)
+    db.init_app(app)
 
     with app.app_context():
         db.create_all()
 
+    app.register_blueprint(homeViews)
+    migrate.init_app(app, db)        # Flask DB Migration
+
     return app
 
-app = create_app()
-app.register_blueprint(endpoints)
+def register_error_handlers(app):
+
+    @app.errorhandler(500)
+    def base_error_handler(e):
+        return 500
+
+    @app.errorhandler(404)
+    def error_404_handler(e):
+        return 404

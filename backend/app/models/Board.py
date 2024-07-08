@@ -52,8 +52,6 @@ class Board(db.Model, ModelMixin):
                 if king.possible_moves is not None:
                     king.possible_moves.extend(get_castling_moves(king, self.pieces))
             self.check_current_team_moves()
-            for piece in filter(lambda p: p.team != self.current_team, self.pieces):
-                piece.possible_moves = []
             if not any(
                 p.possible_moves
                 for p in filter(lambda p: p.team == self.current_team, self.pieces)

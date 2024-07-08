@@ -8,4 +8,6 @@ coverage:
 	pytest --cov=tests
 
 run:
+	flask db migrate
+	flask db upgrade
 	flask run
