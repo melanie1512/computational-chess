@@ -4,23 +4,9 @@ from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType
 from .models.Piece import Piece
-import os
-from dotenv import load_dotenv
+from flask_cors import CORS, cross_origin
 
-load_dotenv()
-
-def create_app():
-    app = Flask(__name__)
-    path = os.getenv("SQLALCHEMY_DATABASE_URI")
-    setup_db(app, path)
-
-    with app.app_context():
-        db.create_all()
-
-    return app
-
-
-app = create_app()
+app = Blueprint("home", __name__, template_folder="templates", static_folder="static")
 
 
 @app.context_processor
@@ -71,6 +57,7 @@ def setup_board():
 def index():
     # Verificar si ya existe un tablero
     board = Board.query.first()
+    print("AAAAA")
     if not board:
         # Si no existe, crear un nuevo tablero
         board = setup_board()
@@ -115,6 +102,25 @@ def show_board(board_id):
         i = pos.y - 1
         j = pos.x - 1
         board_arr[i][j] = pie.to_char()
+
+    return jsonify({"board": board_arr})
+
+@app.route("/show_boards/<int:board_id>", methods=["GET"])
+@cross_origin()
+def show_boards(board_id):
+    # Tablero a retornar
+    board_arr = []
+
+    # Obtener las piezas del tablero y sus posiciones
+    position_piece = (
+        db.session.query(Position, Piece)
+        .join(Piece, Position.id == Piece.position_id)
+        .filter(Piece.board_id == board_id)
+    )
+    for pos, pie in position_piece:
+        i = pos.y - 1
+        j = pos.x - 1
+        board_arr.append([[i, j], pie.get_type(), pie.get_team()])
 
     return jsonify({"board": board_arr})
 

@@ -115,3 +115,9 @@ class Piece(db.Model, ModelMixin):
                 return "♛"
             elif self.is_king:
                 return "♚"
+    
+    def get_type(self):
+        return self.type
+
+    def get_team(self):
+        return self.team

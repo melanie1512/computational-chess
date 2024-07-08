@@ -2,11 +2,10 @@ from .db.database import db, migrate
 from flask import Flask, render_template
 from .config.config import Config
 from .endpoints import app as homeViews
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
-    
-    path = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config.from_object(Config)
     db.init_app(app)
 
@@ -15,7 +14,8 @@ def create_app():
 
     app.register_blueprint(homeViews)
     migrate.init_app(app, db)        # Flask DB Migration
-
+    
+    CORS(app)
     return app
 
 def register_error_handlers(app):
