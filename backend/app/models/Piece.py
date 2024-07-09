@@ -3,7 +3,6 @@ from .Types import PieceType, TeamType
 from .Position import Position
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.ext.declarative import declared_attr
 
 
 class ModelMixin:
@@ -21,15 +20,12 @@ class Piece(db.Model, ModelMixin):
     team = db.Column(db.Integer, nullable=False)
     has_moved = db.Column(db.Boolean, default=False)
     is_checked = db.Column(db.Boolean, default=False)
-    possible_moves = db.relationship(
-        "Piece", backref="board", lazy=True, cascade="all, delete-orphan"
-    )
     board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
 
     def __init__(
         self,
-        position: Position,
+        position_id,
         type: PieceType,
         team: TeamType,
         has_moved=False,
@@ -38,7 +34,8 @@ class Piece(db.Model, ModelMixin):
         if possible_moves is None:
             possible_moves = []
         self.image = f'assets/images/{type}_{"w" if team == 1 else "b"}.png'
-        self.position = position
+        self.position_id = position_id
+        self.position = Position.query.get(position_id)
         self.type = type
         self.team = team
         self.possible_moves = possible_moves
@@ -70,23 +67,27 @@ class Piece(db.Model, ModelMixin):
         return self.type == PieceType.QUEEN
 
     def same_piece_position(self, other_piece):
-        return self.position.same_position(other_piece.position)
+        return self.position.same_position(other_piece.position) if self.position and other_piece.position else False
 
     def same_position(self, other_position):
         return (
-            self.position.x == other_position.x and self.position.y == other_position.y
+            self.position and 
+            other_position and 
+            self.position.x == other_position.x and 
+            self.position.y == other_position.y
         )
 
     def clone(self):
         return Piece(
-            position=self.position.clone(),
+            position_id=self.position_id,
             type=self.type,
             team=self.team,
             has_moved=self.has_moved,
             possible_moves=[
-                Position.from_dict(pos).clone() for pos in self.possible_moves
+                pos.to_dict() if isinstance(pos, Position) else pos for pos in self.possible_moves
             ],
         )
+
 
     def to_char(self):
         if self.team == 1:

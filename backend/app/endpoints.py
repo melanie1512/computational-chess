@@ -30,41 +30,55 @@ def utility_processor():
 
 def setup_board():
     # initializing pieces
-    pieces = [
-        Piece(Position(1, 1), PieceType.ROOK, TeamType.OUR),
-        Piece(Position(2, 1), PieceType.KNIGHT, TeamType.OUR),
-        Piece(Position(3, 1), PieceType.BISHOP, TeamType.OUR),
-        Piece(Position(4, 1), PieceType.QUEEN, TeamType.OUR),
-        Piece(Position(5, 1), PieceType.KING, TeamType.OUR),
-        Piece(Position(6, 1), PieceType.BISHOP, TeamType.OUR),
-        Piece(Position(7, 1), PieceType.KNIGHT, TeamType.OUR),
-        Piece(Position(8, 1), PieceType.ROOK, TeamType.OUR),
-        Piece(Position(1, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(2, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(3, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(4, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(5, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(6, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(7, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(8, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(1, 8), PieceType.ROOK, TeamType.OPPONENT),
-        Piece(Position(2, 8), PieceType.KNIGHT, TeamType.OPPONENT),
-        Piece(Position(3, 8), PieceType.BISHOP, TeamType.OPPONENT),
-        Piece(Position(4, 8), PieceType.QUEEN, TeamType.OPPONENT),
-        Piece(Position(5, 8), PieceType.KING, TeamType.OPPONENT),
-        Piece(Position(6, 8), PieceType.BISHOP, TeamType.OPPONENT),
-        Piece(Position(7, 8), PieceType.KNIGHT, TeamType.OPPONENT),
-        Piece(Position(8, 8), PieceType.ROOK, TeamType.OPPONENT),
-        Piece(Position(1, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(2, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(3, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(4, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(5, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(6, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(7, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(8, 7), PieceType.PAWN, TeamType.OPPONENT),
+    positions = [
+        Position(x=1, y=1), Position(x=2, y=1), Position(x=3, y=1), Position(x=4, y=1),
+        Position(x=5, y=1), Position(x=6, y=1), Position(x=7, y=1), Position(x=8, y=1),
+        Position(x=1, y=2), Position(x=2, y=2), Position(x=3, y=2), Position(x=4, y=2),
+        Position(x=5, y=2), Position(x=6, y=2), Position(x=7, y=2), Position(x=8, y=2),
+        Position(x=1, y=8), Position(x=2, y=8), Position(x=3, y=8), Position(x=4, y=8),
+        Position(x=5, y=8), Position(x=6, y=8), Position(x=7, y=8), Position(x=8, y=8),
+        Position(x=1, y=7), Position(x=2, y=7), Position(x=3, y=7), Position(x=4, y=7),
+        Position(x=5, y=7), Position(x=6, y=7), Position(x=7, y=7), Position(x=8, y=7),
     ]
-    return Board(pieces, total_turns=1)
+    db.session.add_all(positions)
+    db.session.commit()
+
+    pieces = [
+        Piece(position_id=positions[0].id, type=PieceType.ROOK, team=TeamType.OUR),
+        Piece(position_id=positions[1].id, type=PieceType.KNIGHT, team=TeamType.OUR),
+        Piece(position_id=positions[2].id, type=PieceType.BISHOP, team=TeamType.OUR),
+        Piece(position_id=positions[3].id, type=PieceType.QUEEN, team=TeamType.OUR),
+        Piece(position_id=positions[4].id, type=PieceType.KING, team=TeamType.OUR),
+        Piece(position_id=positions[5].id, type=PieceType.BISHOP, team=TeamType.OUR),
+        Piece(position_id=positions[6].id, type=PieceType.KNIGHT, team=TeamType.OUR),
+        Piece(position_id=positions[7].id, type=PieceType.ROOK, team=TeamType.OUR),
+        Piece(position_id=positions[8].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[9].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[10].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[11].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[12].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[13].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[14].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[15].id, type=PieceType.PAWN, team=TeamType.OUR),
+        Piece(position_id=positions[16].id, type=PieceType.ROOK, team=TeamType.OPPONENT),
+        Piece(position_id=positions[17].id, type=PieceType.KNIGHT, team=TeamType.OPPONENT),
+        Piece(position_id=positions[18].id, type=PieceType.BISHOP, team=TeamType.OPPONENT),
+        Piece(position_id=positions[19].id, type=PieceType.QUEEN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[20].id, type=PieceType.KING, team=TeamType.OPPONENT),
+        Piece(position_id=positions[21].id, type=PieceType.BISHOP, team=TeamType.OPPONENT),
+        Piece(position_id=positions[22].id, type=PieceType.KNIGHT, team=TeamType.OPPONENT),
+        Piece(position_id=positions[23].id, type=PieceType.ROOK, team=TeamType.OPPONENT),
+        Piece(position_id=positions[24].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[25].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[26].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[27].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[28].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[29].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[30].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(position_id=positions[31].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+    ]
+    return Board(pieces=pieces, total_turns=1)
+
 
 
 @app.route("/")
