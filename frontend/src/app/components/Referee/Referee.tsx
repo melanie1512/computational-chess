@@ -18,6 +18,7 @@ export default function Referee() {
         axios.get(`http://127.0.0.1:5000/show_boards/1`)
             .then(response => {
                 let piece_ = response.data["board"]
+                let totalTurns = response.data["total_turns"]
                 console.log(piece_, "piece_")
                 let piece = []
                 for (let i = 0; i < piece_.length; i++) {
@@ -25,16 +26,20 @@ export default function Referee() {
                     let type = piece_[i][1]
                     let team = piece_[i][2]
                     let hasMoved = false
-                    piece.push(new Piece(position, type, team, hasMoved))
+                    let possibleMoves = []
+                    if (piece_[i][3].length > 0  ){
+                        for (let j = 0; j < piece_[i][3].length; j++) {
+                            possibleMoves.push(new Position(piece_[i][3][j]['x'], piece_[i][3][j]['y']))
+                        }
+                    }
+                    piece.push(new Piece(position, type, team, hasMoved, possibleMoves))
                 }
                 console.log(piece)
-                const newBoard = new Board(piece, 1);
-                newBoard.calculateAllMoves();
+                const newBoard = new Board(piece, totalTurns);
                 setBoard(newBoard);
             })
             .catch(error => console.error('Failed to fetch board:', error));
     }, []);
- 
 
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
@@ -131,6 +136,7 @@ export default function Referee() {
 
     //TODO
     //Add stalemate!
+    // request to valid move
     function isValidMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType) {
         let validMove = false;
         switch (type) {
@@ -184,7 +190,7 @@ export default function Referee() {
     function promotionTeamType() {
         return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
     }
-
+    //request to restart game
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");

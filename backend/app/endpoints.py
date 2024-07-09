@@ -5,6 +5,8 @@ from .models.Position import Position
 from .models.Types import PieceType, TeamType
 from .models.Piece import Piece
 from flask_cors import CORS, cross_origin
+from flask import redirect
+import requests 
 
 app = Blueprint("home", __name__, template_folder="templates", static_folder="static")
 
@@ -109,6 +111,7 @@ def show_board(board_id):
 @cross_origin()
 def show_boards(board_id):
     # Tablero a retornar
+    response = calculate_all()
     board_arr = []
 
     # Obtener las piezas del tablero y sus posiciones
@@ -120,8 +123,8 @@ def show_boards(board_id):
     for pos, pie in position_piece:
         i = pos.y - 1
         j = pos.x - 1
-        board_arr.append([[i, j], pie.get_type(), pie.get_team()])
-
+        board_arr.append([[i, j], pie.get_type(), pie.get_team(), pie.get_possible_moves(), response["total_turns"]])
+    
     return jsonify({"board": board_arr})
 
 
@@ -177,6 +180,13 @@ def move_piece():
                 return jsonify({"error": "Invalid move for this piece"}), 400
     else:
         return jsonify({"error": "Piece not found or invalid move"}), 400
+
+
+def calculate_all():
+    board = Board.query.first()  # Asumimos que solo hay un tablero
+    board.calculate_all_moves()
+    db.session.commit()
+    return board.to_dict()
 
 # Endpoint para calcular todos los movimientos posibles
 @app.route("/board/calculate_moves", methods=["POST"])

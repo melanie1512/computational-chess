@@ -121,3 +121,6 @@ class Piece(db.Model, ModelMixin):
 
     def get_team(self):
         return self.team
+    
+    def get_possible_moves(self):
+        return self.possible_moves
