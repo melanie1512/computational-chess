@@ -47,11 +47,14 @@ class Board(db.Model, ModelMixin):
     def calculate_all_moves(self):
         try:
             for piece in self.pieces:
-                piece.possible_moves = self.get_valid_moves(piece, self.pieces)
+                piece.possible_moves = self.get_valid_moves(piece, self.pieces, "not all")
             for king in filter(lambda p: p.is_king, self.pieces):
                 if king.possible_moves is not None:
                     king.possible_moves.extend(get_castling_moves(king, self.pieces))
             self.check_current_team_moves()
+            for piece in self.pieces:
+                if piece.team != self.current_team:
+                    piece.possible_moves = []
             if not any(
                 p.possible_moves
                 for p in filter(lambda p: p.team == self.current_team, self.pieces)
@@ -75,71 +78,81 @@ class Board(db.Model, ModelMixin):
             raise
 
     def check_current_team_moves(self):
-        for piece in filter(lambda p: p.team == self.current_team, self.pieces):
-            if piece.possible_moves is None:
-                continue
-            for move_dict in piece.possible_moves:
-                move = Position.from_dict(
-                    move_dict
-                )  # Convert dictionary back to Position object
-                simulated_board = self.clone()
-                simulated_board.pieces = [
-                    p for p in simulated_board.pieces if not p.same_position(move)
-                ]
-                cloned_piece = next(
-                    p for p in simulated_board.pieces if p.same_piece_position(piece)
-                )
-                cloned_piece.position = move.clone()  # Use the clone method
-                cloned_king = next(
-                    p
-                    for p in simulated_board.pieces
-                    if p.is_king and p.team == simulated_board.current_team
-                )
-                for enemy in filter(
-                    lambda p: p.team != simulated_board.current_team,
-                    simulated_board.pieces,
-                ):
-                    enemy.possible_moves = simulated_board.get_valid_moves(
-                        enemy, simulated_board.pieces
+        try:
+            for piece in filter(lambda p: p.team == self.current_team, self.pieces):
+                if piece.possible_moves is None or len(piece.possible_moves) == 0:
+                    continue
+                for move_dict in piece.possible_moves:
+                    move = Position.from_dict(
+                        move_dict
+                    )  # Convert dictionary back to Position object
+                    simulated_board = self.clone()
+                    simulated_board.pieces = [
+                        p for p in simulated_board.pieces if not p.same_position(move)
+                    ]
+                    cloned_piece = next(
+                        p for p in simulated_board.pieces if p.same_piece_position(piece)
                     )
+                    cloned_piece.position = move.clone()  # Use the clone method
+                    cloned_king = next(
+                        p
+                        for p in simulated_board.pieces
+                        if p.is_king and p.team == simulated_board.current_team
+                    )
+                    for enemy in filter(
+                        lambda p: p.team != simulated_board.current_team,
+                        simulated_board.pieces,
+                    ):
+                        enemy.possible_moves = simulated_board.get_valid_moves(
+                            enemy, simulated_board.pieces
+                        )
+                        for m in enemy.possible_moves:
+                            try: 
+                                print(Position.from_dict(m))
+                            except:
+                                raise Exception(m.x, m.y)
+                        if enemy.is_pawn and any(
+
+                            Position.from_dict(m).x != enemy.position.x
+                            and Position.from_dict(m).same_position(cloned_king.position)
+                            for m in enemy.possible_moves
+                        ):
+                            piece.possible_moves = [
+                                m
+                                for m in piece.possible_moves
+                                if not Position.from_dict(m).same_position(move)
+                            ]
+                        elif any(
+                            Position.from_dict(m).same_position(cloned_king.position)
+                            for m in enemy.possible_moves
+                        ):
+                            piece.possible_moves = [
+                                m
+                                for m in piece.possible_moves
+                                if not Position.from_dict(m).same_position(move)
+                            ]
+                king = next(
+                    p for p in self.pieces if p.is_king and p.team == self.current_team
+                )
+                for enemy in filter(lambda p: p.team != self.current_team, self.pieces):
+                    enemy.possible_moves = self.get_valid_moves(enemy, self.pieces)
+
                     if enemy.is_pawn and any(
-                        Position.from_dict(m).x != enemy.position.x
-                        and Position.from_dict(m).same_position(cloned_king.position)
+                        m["x"] != enemy.position.x
+                        and Position.from_dict(m).same_position(king.position)
                         for m in enemy.possible_moves
                     ):
-                        piece.possible_moves = [
-                            m
-                            for m in piece.possible_moves
-                            if not Position.from_dict(m).same_position(move)
-                        ]
+                        king.is_checked = True
                     elif any(
-                        Position.from_dict(m).same_position(cloned_king.position)
+                        Position.from_dict(m).same_position(king.position)
                         for m in enemy.possible_moves
                     ):
-                        piece.possible_moves = [
-                            m
-                            for m in piece.possible_moves
-                            if not Position.from_dict(m).same_position(move)
-                        ]
-            king = next(
-                p for p in self.pieces if p.is_king and p.team == self.current_team
-            )
-            for enemy in filter(lambda p: p.team != self.current_team, self.pieces):
-                enemy.possible_moves = self.get_valid_moves(enemy, self.pieces)
+                        king.is_checked = True
+        except Exception as e:
+            print(f"Error during check_current_team_moves: {e}")
+            raise
 
-                if enemy.is_pawn and any(
-                    m["x"] != enemy.position.x
-                    and Position.from_dict(m).same_position(king.position)
-                    for m in enemy.possible_moves
-                ):
-                    king.is_checked = True
-                elif any(
-                    Position.from_dict(m).same_position(king.position)
-                    for m in enemy.possible_moves
-                ):
-                    king.is_checked = True
-
-    def get_valid_moves(self, piece, board_state):
+    def get_valid_moves(self, piece, board_state, mode="all"):
         if piece.type == PieceType.PAWN:
             return get_possible_pawn_moves(piece, board_state)
         elif piece.type == PieceType.KNIGHT:
@@ -160,6 +173,8 @@ class Board(db.Model, ModelMixin):
         destination_piece = next(
             (p for p in self.pieces if p.same_position(destination)), None
         )
+        if played_piece.position.x == destination.x and played_piece.position.y == destination.y:
+            return False
         if (
             played_piece.is_king
             and destination_piece
@@ -206,3 +221,6 @@ class Board(db.Model, ModelMixin):
 
     def clone(self):
         return Board([piece.clone() for piece in self.pieces], self.total_turns)
+
+    def add_turn(self):
+        self.total_turns += 1

@@ -38,7 +38,7 @@ def king_move(initial_position, desired_position, team, board_state):
     return False
 
 
-"""def get_possible_king_moves(king: Piece, board_state: List[Piece]):
+def get_possible_king_moves(king: Piece, board_state: List[Piece]):
     possible_moves: List[Position] = []
 
     # Movimiento hacia arriba
@@ -55,9 +55,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -76,9 +76,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -97,9 +97,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -118,9 +118,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -139,9 +139,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -160,9 +160,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -181,9 +181,9 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
@@ -202,14 +202,15 @@ def king_move(initial_position, desired_position, team, board_state):
             break
 
         if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
         elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-            possible_moves.append(destination)
+            possible_moves.append(destination.to_dict())
             break
         else:
             break
 
-    return possible_moves"""
+    return possible_moves
+"""
 
 
 def get_possible_king_moves(king, board_state):
@@ -237,12 +238,12 @@ def get_possible_king_moves(king, board_state):
         if is_valid_position(destination_x, destination_y):
             destination = Position(destination_x, destination_y)
             if not tile_is_occupied(destination, board_state):
-                possible_moves.append(destination)
+                possible_moves.append(destination.to_dict())
             elif tile_is_occupied_by_opponent(destination, board_state, king.team):
-                possible_moves.append(destination)
+                possible_moves.append(destination.to_dict())
 
     return possible_moves
-
+"""
 
 def get_castling_moves(king: Piece, board_state: List[Piece]):
     possible_moves: List[Position] = []

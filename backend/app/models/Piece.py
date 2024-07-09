@@ -26,6 +26,7 @@ class Piece(db.Model, ModelMixin):
     )
     board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
+    en_passant = db.Column(db.Boolean, default=False)
 
     def __init__(
         self,
@@ -44,6 +45,10 @@ class Piece(db.Model, ModelMixin):
         self.possible_moves = possible_moves
         self.has_moved = has_moved
         self.is_checked = False
+        if self.type == PieceType.PAWN:
+            self.en_passant = True
+        else:
+            self.en_passant = False
 
     @property
     def is_pawn(self):
@@ -124,3 +129,9 @@ class Piece(db.Model, ModelMixin):
     
     def get_possible_moves(self):
         return self.possible_moves
+    
+    def get_id(self):
+        return self.id
+    
+    def get_en_passant(self):
+        return self.en_passant

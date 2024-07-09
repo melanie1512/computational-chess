@@ -13,81 +13,66 @@ import Chessboard from "../Chessboard/Chessboard";
 export default function Referee() {
     
     const [board, setBoard] = useState<Board>(new Board([], 1));
-    
+    let board_id
+
     useEffect(() => {
-        axios.get(`http://127.0.0.1:5000/show_boards/1`)
+        axios.get(`http://127.0.0.1:5000/`)
             .then(response => {
-                let piece_ = response.data["board"]
-                let totalTurns = response.data["total_turns"]
-                console.log(piece_, "piece_")
-                let piece = []
-                for (let i = 0; i < piece_.length; i++) {
-                    let position = new Position(piece_[i][0][1], piece_[i][0][0])
-                    let type = piece_[i][1]
-                    let team = piece_[i][2]
-                    let hasMoved = false
-                    let possibleMoves = []
-                    if (piece_[i][3].length > 0  ){
-                        for (let j = 0; j < piece_[i][3].length; j++) {
-                            possibleMoves.push(new Position(piece_[i][3][j]['x'], piece_[i][3][j]['y']))
-                        }
-                    }
-                    piece.push(new Piece(position, type, team, hasMoved, possibleMoves))
-                }
-                console.log(piece)
-                const newBoard = new Board(piece, totalTurns);
-                setBoard(newBoard);
+                
             })
             .catch(error => console.error('Failed to fetch board:', error));
+    }, []);
+
+    const set_vars = (response: any) => {
+        let piece_ = response.data["board"]
+        let totalTurns = response.data["total_turns"]
+        console.log(piece_, "piece_", response.data)
+        let piece = []
+        for (let i = 0; i < piece_.length; i++) {
+            let position = new Position(piece_[i][0][0], piece_[i][0][1])
+            let type = piece_[i][1]
+            let team = piece_[i][2]
+            let hasMoved = false
+            let possibleMoves = []
+            let id = piece_[i][4]
+            if (piece_[i][3].length > 0  ){
+                for (let j = 0; j < piece_[i][3].length; j++) {
+                    possibleMoves.push(new Position(piece_[i][3][j]['x'], piece_[i][3][j]['y']))
+                }
+            }
+            piece.push(new Piece(id, position, type, team, hasMoved, possibleMoves))
+        }
+        console.log(piece)
+        const newBoard = new Board(piece, totalTurns);
+        setBoard(newBoard);
+    }
+
+    useEffect(() => {
+        const fetchBoard = () => {
+            axios.get(`http://127.0.0.1:5000/show_boards/1`)
+                .then(response => {
+                    set_vars(response)
+                })
+                .catch(error => console.error('Failed to fetch board:', error));
+        }
+    
+        fetchBoard();
     }, []);
 
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
     const stalemateModalRef = useRef<HTMLDivElement>(null);
-
+    let playedMoveIsValid = false;
+    //llamar api backend para jugar
     function playMove(playedPiece: Piece, destination: Position): boolean {
-        // If the playing piece doesn't have any moves return
-        if (playedPiece.possibleMoves === undefined) return false;
-
-        // Prevent the inactive team from playing
-        if (playedPiece.team === TeamType.OUR
-            && board.totalTurns % 2 !== 1) return false;
-        if (playedPiece.team === TeamType.OPPONENT
-            && board.totalTurns % 2 !== 0) return false;
-
-        let playedMoveIsValid = false;
-
-        const validMove = playedPiece.possibleMoves?.some(m => m.samePosition(destination));
-
-        if (!validMove) return false;
-
-        const enPassantMove = isEnPassantMove(
-            playedPiece.position,
-            destination,
-            playedPiece.type,
-            playedPiece.team
-        );
-
-        // playMove modifies the board thus we
-        // need to call setBoard
-        setBoard(() => {
-            const clonedBoard = board.clone();
-            clonedBoard.totalTurns += 1;
-            // Playing the move
-            playedMoveIsValid = clonedBoard.playMove(enPassantMove,
-                validMove, playedPiece,
-                destination);
-
-            if (clonedBoard.winningTeam !== undefined && clonedBoard.winningTeam !== TeamType.DRAW) {
-                checkmateModalRef.current?.classList.remove("hidden");
-            }
-            else if (clonedBoard.winningTeam === TeamType.DRAW) {
-                stalemateModalRef.current?.classList.remove("hidden");
-            }
-
-            return clonedBoard;
-        })
+        axios.post(`http://127.0.0.1:5000/play_move/1`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y})
+            .then(response => {
+                set_vars(response)
+                console.log(response.data, "dataaaaaaaaaaaaaaaaaaaaa")
+                playedMoveIsValid = response.data["result"]
+            })
+            .catch(error => console.error('Failed to fetch board:', error));
 
         // This is for promoting a pawn
         let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
@@ -137,30 +122,6 @@ export default function Referee() {
     //TODO
     //Add stalemate!
     // request to valid move
-    function isValidMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType) {
-        let validMove = false;
-        switch (type) {
-            case PieceType.PAWN:
-                validMove = pawnMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.KNIGHT:
-                validMove = knightMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.BISHOP:
-                validMove = bishopMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.ROOK:
-                validMove = rookMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.QUEEN:
-                validMove = queenMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.KING:
-                validMove = kingMove(initialPosition, desiredPosition, team, board.pieces);
-        }
-
-        return validMove;
-    }
 
     function promotePawn(pieceType: PieceType) {
         if (promotionPawn === undefined) {
@@ -171,7 +132,7 @@ export default function Referee() {
             const clonedBoard = board.clone();
             clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
                 if (piece.samePiecePosition(promotionPawn)) {
-                    results.push(new Piece(piece.position.clone(), pieceType,
+                    results.push(new Piece(piece.id, piece.position.clone(), pieceType,
                         piece.team, true));
                 } else {
                     results.push(piece);

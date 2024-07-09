@@ -19,38 +19,38 @@ def utility_processor():
 def setup_board():
     # initializing pieces
     pieces = [
-        Piece(Position(1, 1), PieceType.ROOK, TeamType.OUR),
-        Piece(Position(2, 1), PieceType.KNIGHT, TeamType.OUR),
-        Piece(Position(3, 1), PieceType.BISHOP, TeamType.OUR),
-        Piece(Position(4, 1), PieceType.QUEEN, TeamType.OUR),
-        Piece(Position(5, 1), PieceType.KING, TeamType.OUR),
-        Piece(Position(6, 1), PieceType.BISHOP, TeamType.OUR),
-        Piece(Position(7, 1), PieceType.KNIGHT, TeamType.OUR),
-        Piece(Position(8, 1), PieceType.ROOK, TeamType.OUR),
-        Piece(Position(1, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(2, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(3, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(4, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(5, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(6, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(7, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(8, 2), PieceType.PAWN, TeamType.OUR),
-        Piece(Position(1, 8), PieceType.ROOK, TeamType.OPPONENT),
-        Piece(Position(2, 8), PieceType.KNIGHT, TeamType.OPPONENT),
-        Piece(Position(3, 8), PieceType.BISHOP, TeamType.OPPONENT),
-        Piece(Position(4, 8), PieceType.QUEEN, TeamType.OPPONENT),
-        Piece(Position(5, 8), PieceType.KING, TeamType.OPPONENT),
-        Piece(Position(6, 8), PieceType.BISHOP, TeamType.OPPONENT),
-        Piece(Position(7, 8), PieceType.KNIGHT, TeamType.OPPONENT),
-        Piece(Position(8, 8), PieceType.ROOK, TeamType.OPPONENT),
-        Piece(Position(1, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(2, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(3, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(4, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(5, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(6, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(7, 7), PieceType.PAWN, TeamType.OPPONENT),
-        Piece(Position(8, 7), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(0, 0), PieceType.ROOK, TeamType.OUR),
+        Piece(Position(1, 0), PieceType.KNIGHT, TeamType.OUR),
+        Piece(Position(2, 0), PieceType.BISHOP, TeamType.OUR),
+        Piece(Position(3, 0), PieceType.QUEEN, TeamType.OUR),
+        Piece(Position(4, 0), PieceType.KING, TeamType.OUR),
+        Piece(Position(5, 0), PieceType.BISHOP, TeamType.OUR),
+        Piece(Position(6, 0), PieceType.KNIGHT, TeamType.OUR),
+        Piece(Position(7, 0), PieceType.ROOK, TeamType.OUR),
+        Piece(Position(0, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(1, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(2, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(3, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(4, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(5, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(6, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(7, 1), PieceType.PAWN, TeamType.OUR),
+        Piece(Position(0, 7), PieceType.ROOK, TeamType.OPPONENT),
+        Piece(Position(1, 7), PieceType.KNIGHT, TeamType.OPPONENT),
+        Piece(Position(2, 7), PieceType.BISHOP, TeamType.OPPONENT),
+        Piece(Position(3, 7), PieceType.QUEEN, TeamType.OPPONENT),
+        Piece(Position(4, 7), PieceType.KING, TeamType.OPPONENT),
+        Piece(Position(5, 7), PieceType.BISHOP, TeamType.OPPONENT),
+        Piece(Position(6, 7), PieceType.KNIGHT, TeamType.OPPONENT),
+        Piece(Position(7, 7), PieceType.ROOK, TeamType.OPPONENT),
+        Piece(Position(0, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(1, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(2, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(3, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(4, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(5, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(6, 6), PieceType.PAWN, TeamType.OPPONENT),
+        Piece(Position(7, 6), PieceType.PAWN, TeamType.OPPONENT),
     ]
     return Board(pieces, total_turns=1)
 
@@ -59,7 +59,6 @@ def setup_board():
 def index():
     # Verificar si ya existe un tablero
     board = Board.query.first()
-    print("AAAAA")
     if not board:
         # Si no existe, crear un nuevo tablero
         board = setup_board()
@@ -107,9 +106,7 @@ def show_board(board_id):
 
     return jsonify({"board": board_arr})
 
-@app.route("/show_boards/<int:board_id>", methods=["GET"])
-@cross_origin()
-def show_boards(board_id):
+def get_board_(board_id):
     # Tablero a retornar
     response = calculate_all()
     board_arr = []
@@ -121,11 +118,18 @@ def show_boards(board_id):
         .filter(Piece.board_id == board_id)
     )
     for pos, pie in position_piece:
-        i = pos.y - 1
-        j = pos.x - 1
-        board_arr.append([[i, j], pie.get_type(), pie.get_team(), pie.get_possible_moves(), response["total_turns"]])
+        i = pos.y
+        j = pos.x
+        board_arr.append([[j, i], pie.get_type(), pie.get_team(), pie.get_possible_moves(), pie.get_id()])
+
+    return board_arr, response
+
+@app.route("/show_boards/<int:board_id>", methods=["GET"])
+@cross_origin()
+def show_boards(board_id):
+    board_arr, response = get_board_(board_id)
     
-    return jsonify({"board": board_arr})
+    return jsonify({"board": board_arr,  "total_turns": response["total_turns"]})
 
 
 @app.route("/delete_board/<int:board_id>", methods=["DELETE"])
@@ -246,12 +250,15 @@ def get_pieces():
     pieces = Piece.query.all()
     return jsonify([piece.to_dict() for piece in pieces])
 
+def get_piece_(piece_id):
+    piece = Piece.query.get_or_404(piece_id)
+    return piece
 
 # Endpoint para obtener una pieza específica
 @app.route("/pieces/<int:piece_id>", methods=["GET"])
 def get_piece(piece_id):
-    piece = Piece.query.get_or_404(piece_id)
-    return jsonify(piece.to_dict())
+    response = get_piece_(piece_id)
+    return jsonify(response.to_dict())
 
 
 # Endpoint para crear una nueva pieza
@@ -313,6 +320,25 @@ def play_move():
     db.session.commit()
     return jsonify({"result": result})
 
+
+@app.route("/play_move/<int:board_id>", methods=["POST"])
+def validate_move(board_id):
+    board = Board.query.get_or_404(board_id)
+    cloned = board.clone()
+    data = request.get_json()
+    
+    piece_id = data["id"]
+    piece = get_piece_(piece_id)
+    en_passant_move = piece.get_en_passant()
+    validate_move = True if len(piece.get_possible_moves()) > 0 else False
+    destination = Position(data["x"], data["y"])
+    result = cloned.play_move(en_passant_move, validate_move, piece, destination)
+    if result:
+        board.add_turn()
+    del cloned
+    db.session.commit()
+    board_arr, response = get_board_(board_id)
+    return jsonify({"result": result, "board": board_arr, "total_turns": response["total_turns"]})
 
 if __name__ == "__main__":
     app.run(debug=True)

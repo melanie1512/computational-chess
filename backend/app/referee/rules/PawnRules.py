@@ -51,7 +51,7 @@ def pawn_move(initial_position, desired_position, team, board_state):
     return False
 
 
-"""def get_possible_pawn_moves(pawn, board_state):
+def get_possible_pawn_moves(pawn, board_state):
     possible_moves = []
     special_row = 1 if pawn.team == TeamType.OUR else 6
     pawn_direction = 1 if pawn.team == TeamType.OUR else -1
@@ -63,32 +63,37 @@ def pawn_move(initial_position, desired_position, team, board_state):
     left_position = Position(pawn.position.x - 1, pawn.position.y)
     right_position = Position(pawn.position.x + 1, pawn.position.y)
     
-    if not tile_is_occupied(normal_move, board_state):
-        possible_moves.append(normal_move)
-        if pawn.position.y == special_row and not tile_is_occupied(
-            special_move, board_state
-        ):
-            possible_moves.append(special_move)
+    if normal_move.is_valid():
+        if not tile_is_occupied(normal_move, board_state):
+            possible_moves.append(normal_move.to_dict())
+            if pawn.position.y == special_row and not tile_is_occupied(
+                special_move, board_state
+            ):
+                possible_moves.append(special_move.to_dict())
 
-    if tile_is_occupied_by_opponent(upper_left_attack, board_state, pawn.team):
-        possible_moves.append(upper_left_attack)
-    elif not tile_is_occupied(upper_left_attack, board_state):
-        left_piece = next(
-            (p for p in board_state if p.position.same_position(left_position)), None
-        )
-        if left_piece and isinstance(left_piece, Pawn) and left_piece.en_passant:
-            possible_moves.append(upper_left_attack)
+    if upper_left_attack.is_valid():
+        if tile_is_occupied_by_opponent(upper_left_attack, board_state, pawn.team):
+            possible_moves.append(upper_left_attack.to_dict())
+        elif not tile_is_occupied(upper_left_attack, board_state):
+            left_piece = next(
+                (p for p in board_state if p.position.same_position(left_position)), None
+            )
+            if left_piece and isinstance(left_piece, Pawn) and left_piece.en_passant:
+                possible_moves.append(upper_left_attack.to_dict())
 
-    if tile_is_occupied_by_opponent(upper_right_attack, board_state, pawn.team):
-        possible_moves.append(upper_right_attack)
-    elif not tile_is_occupied(upper_right_attack, board_state):
-        right_piece = next(
-            (p for p in board_state if p.position.same_position(right_position)), None
-        )
-        if right_piece and isinstance(right_piece, Pawn) and right_piece.en_passant:
-            possible_moves.append(upper_right_attack)
+    if upper_right_attack.is_valid():
+        if tile_is_occupied_by_opponent(upper_right_attack, board_state, pawn.team):
+            possible_moves.append(upper_right_attack.to_dict())
+        elif not tile_is_occupied(upper_right_attack, board_state):
+            right_piece = next(
+                (p for p in board_state if p.position.same_position(right_position)), None
+            )
+            if right_piece and isinstance(right_piece, Pawn) and right_piece.en_passant:
+                possible_moves.append(upper_right_attack.to_dict())
 
-    return possible_moves"""
+    return possible_moves
+
+"""
 
 
 def get_possible_pawn_moves(pawn, board_state):
@@ -142,3 +147,4 @@ def get_possible_pawn_moves(pawn, board_state):
                     possible_moves.append(attack_move.to_dict())
 
     return possible_moves
+"""
