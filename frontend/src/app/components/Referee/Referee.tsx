@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { initialBoard } from "../../Constants";
 import { Piece, Position } from "../../models";
 import { Board } from "../../models/Board";
-import { Pawn } from "../../models/Pawn";
 import axios from 'axios';
-import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove } from "../../referee/rules";
 import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/Chessboard";
 
@@ -88,40 +86,6 @@ export default function Referee() {
 
         return playedMoveIsValid;
     }
-
-    function isEnPassantMove(
-        initialPosition: Position,
-        desiredPosition: Position,
-        type: PieceType,
-        team: TeamType
-    ) {
-        const pawnDirection = team === TeamType.OUR ? 1 : -1;
-
-        if (type === PieceType.PAWN) {
-            if (
-                (desiredPosition.x - initialPosition.x === -1 ||
-                    desiredPosition.x - initialPosition.x === 1) &&
-                desiredPosition.y - initialPosition.y === pawnDirection
-            ) {
-                const piece = board.pieces.find(
-                    (p) =>
-                        p.position.x === desiredPosition.x &&
-                        p.position.y === desiredPosition.y - pawnDirection &&
-                        p.isPawn &&
-                        (p as Pawn).enPassant
-                );
-                if (piece) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //TODO
-    //Add stalemate!
-    // request to valid move
 
     function promotePawn(pieceType: PieceType) {
         if (promotionPawn === undefined) {

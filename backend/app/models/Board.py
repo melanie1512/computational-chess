@@ -169,6 +169,7 @@ class Board(db.Model, ModelMixin):
             return []
 
     def play_move(self, en_passant_move, valid_move, played_piece, destination):
+        #falta agregar logica para eliminar pieza en caso de comer
         pawn_direction = 1 if played_piece.team == TeamType.OUR else -1
         destination_piece = next(
             (p for p in self.pieces if p.same_position(destination)), None
