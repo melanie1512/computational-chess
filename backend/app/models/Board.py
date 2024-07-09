@@ -45,11 +45,13 @@ class Board(db.Model, ModelMixin):
         )  # se puede cambiar para modificar color de pieza
 
     def calculate_all_moves(self):
+        # Recalcula todos los movimientos posibles para todas las piezas
         for piece in self.pieces:
             piece.possible_moves = [
                 move.to_dict() if isinstance(move, Position) else move
                 for move in self.get_valid_moves(piece, self.pieces)
             ]
+        # Calcula los movimientos de enroque para los reyes
         for king in filter(lambda p: p.is_king, self.pieces):
             if king.possible_moves is not None:
                 king.possible_moves.extend(
@@ -58,25 +60,28 @@ class Board(db.Model, ModelMixin):
                         for move in get_castling_moves(king, self.pieces)
                     ]
                 )
+        # Verifica los movimientos del equipo actual
         self.check_current_team_moves()
-        for piece in filter(lambda p: p.team != self.current_team, self.pieces):
-            piece.possible_moves = []
+
+        # Determina si el rey del equipo actual está en jaque o si el juego termina en empate
         if not any(
             p.possible_moves
             for p in filter(lambda p: p.team == self.current_team, self.pieces)
         ):
             king = next(
-                filter(lambda p: p.is_king and p.team == self.current_team, self.pieces)
+                filter(lambda p: p.is_king and p.team == self.current_team, self.pieces),
+                None
             )
-            self.winning_team = (
-                'draw'
-                if not king.is_checked
-                else (
-                    'opponent'
-                    if self.current_team == 'our'
-                    else 'our'
+            if king:
+                self.winning_team = (
+                    'draw'
+                    if not king.is_checked
+                    else (
+                        'opponent'
+                        if self.current_team == 'our'
+                        else 'our'
+                    )
                 )
-            )
 
 
     def check_current_team_moves(self):
