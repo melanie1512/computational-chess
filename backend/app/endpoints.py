@@ -329,13 +329,17 @@ def validate_move(board_id):
     
     piece_id = data["id"]
     piece = get_piece_(piece_id)
-    en_passant_move = piece.get_en_passant()
+    en_passant_move = False #piece.get_en_passant()
     validate_move = True if len(piece.get_possible_moves()) > 0 else False
     destination = Position(data["x"], data["y"])
     result = cloned.play_move(en_passant_move, validate_move, piece, destination)
+    deleted = []
     if result:
         board.add_turn()
+        deleted = board.copy_cloned(cloned)
     del cloned
+    for item in deleted:
+        db.session.delete(item)
     db.session.commit()
     board_arr, response = get_board_(board_id)
     return jsonify({"result": result, "board": board_arr, "total_turns": response["total_turns"]})

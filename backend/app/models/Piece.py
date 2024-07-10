@@ -35,6 +35,7 @@ class Piece(db.Model, ModelMixin):
         team: TeamType,
         has_moved=False,
         possible_moves=None,
+        id: int = None,
     ):
         if possible_moves is None:
             possible_moves = []
@@ -49,6 +50,8 @@ class Piece(db.Model, ModelMixin):
             self.en_passant = True
         else:
             self.en_passant = False
+        if id:
+            self.id = id
 
     @property
     def is_pawn(self):
@@ -91,6 +94,7 @@ class Piece(db.Model, ModelMixin):
             possible_moves=[
                 Position.from_dict(pos).clone() for pos in self.possible_moves
             ],
+            id=self.id,
         )
 
     def to_char(self):

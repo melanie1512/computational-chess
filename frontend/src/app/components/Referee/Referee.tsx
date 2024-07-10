@@ -67,14 +67,13 @@ export default function Referee() {
         axios.post(`http://127.0.0.1:5000/play_move/1`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y})
             .then(response => {
                 set_vars(response)
-                console.log(response.data, "dataaaaaaaaaaaaaaaaaaaaa")
                 playedMoveIsValid = response.data["result"]
             })
             .catch(error => console.error('Failed to fetch board:', error));
 
         // This is for promoting a pawn
         let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
-
+        //implemnte inside play_move
         if (destination.y === promotionRow && playedPiece.isPawn) {
             modalRef.current?.classList.remove("hidden");
             setPromotionPawn((previousPromotionPawn) => {
@@ -91,7 +90,7 @@ export default function Referee() {
         if (promotionPawn === undefined) {
             return;
         }
-
+        //endpoint to promote pawn
         setBoard((previousBoard) => {
             const clonedBoard = board.clone();
             clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
@@ -116,6 +115,7 @@ export default function Referee() {
         return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
     }
     //request to restart game
+    //endpont to restart game
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");

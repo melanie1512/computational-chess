@@ -106,11 +106,6 @@ class Board(db.Model, ModelMixin):
                         enemy.possible_moves = simulated_board.get_valid_moves(
                             enemy, simulated_board.pieces
                         )
-                        for m in enemy.possible_moves:
-                            try: 
-                                print(Position.from_dict(m))
-                            except:
-                                raise Exception(m.x, m.y)
                         if enemy.is_pawn and any(
 
                             Position.from_dict(m).x != enemy.position.x
@@ -170,6 +165,7 @@ class Board(db.Model, ModelMixin):
 
     def play_move(self, en_passant_move, valid_move, played_piece, destination):
         #falta agregar logica para eliminar pieza en caso de comer
+
         pawn_direction = 1 if played_piece.team == TeamType.OUR else -1
         destination_piece = next(
             (p for p in self.pieces if p.same_position(destination)), None
@@ -212,6 +208,7 @@ class Board(db.Model, ModelMixin):
             self.pieces = [
                 piece for piece in self.pieces if not piece.same_position(destination)
             ]
+
             played_piece.position.x = destination.x
             played_piece.position.y = destination.y
             played_piece.has_moved = True
@@ -225,3 +222,28 @@ class Board(db.Model, ModelMixin):
 
     def add_turn(self):
         self.total_turns += 1
+
+    def copy_cloned(self, cloned):
+        self.pieces = sorted(self.pieces, key=lambda p: p.id)
+        cloned.pieces = sorted(cloned.pieces, key=lambda p: p.id)
+        deleted = []
+        i = 0
+        j = 0
+        if len(self.pieces) != len(cloned.pieces):
+        
+            while i < len(self.pieces):
+                if j > len(self.pieces) - 1:
+                        break
+                if i > len(cloned.pieces) - 1:
+                    break
+                if self.pieces[j].id != cloned.pieces[i].id:
+                    deleted.append(self.pieces[j])
+                    if self.pieces[j].id < cloned.pieces[i].id:
+                        j += 1
+                    else:
+                        i += 1
+
+                j += 1
+                i += 1
+
+        return deleted
