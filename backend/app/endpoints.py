@@ -348,9 +348,9 @@ def validate_move(board_id):
 def promote_pawn(board_id):
     board = Board.query.get_or_404(board_id)
     data = request.get_json()
-    piece_id = data["piece_id"]
+    piece_id = data["id"]
     piece = get_piece_(piece_id)
-    piece.type = data["type"]
+    piece.type = data["piece_type"]
     piece.update_image()
     db.session.commit()
     board_arr, response = get_board_(board_id)
