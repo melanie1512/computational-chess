@@ -137,6 +137,37 @@ def show_board(board_id):
 
     return jsonify({"board": board_arr})
 
+@app.route("/get_possible_moves", methods=["POST"])
+def get_possible_moves():
+    data = request.json
+    x = data["x"]
+    y = data["y"]
+    team = data["team"]
+    board_id = data["board_id"]
+
+    # Busca la pieza en la posición dada
+    position_piece = (
+        db.session.query(Piece)
+        .join(Position, Piece.position_id == Position.id)
+        .filter(
+            Position.x == x,
+            Position.y == y,
+            Piece.team == team,
+            Piece.board_id == board_id
+        )
+        .first()
+    )
+
+    if not position_piece:
+        return jsonify({"error": "Piece not found"}), 404
+
+    piece = position_piece
+
+    # Accede a los movimientos posibles desde la instancia de pieza
+    possible_moves = [{"x": move["x"], "y": move["y"]} for move in piece.possible_moves]
+
+    return jsonify({"possible_moves": possible_moves}), 200
+
 
 @app.route("/delete_board/<int:board_id>", methods=["DELETE"])
 def delete_board(board_id):
