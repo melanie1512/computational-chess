@@ -344,5 +344,17 @@ def validate_move(board_id):
     board_arr, response = get_board_(board_id)
     return jsonify({"result": result, "board": board_arr, "total_turns": response["total_turns"]})
 
+@app.route("/promote_pawn/<int:board_id>", methods=["POST"])
+def promote_pawn(board_id):
+    board = Board.query.get_or_404(board_id)
+    data = request.get_json()
+    piece_id = data["piece_id"]
+    piece = get_piece_(piece_id)
+    piece.type = data["type"]
+    piece.update_image()
+    db.session.commit()
+    board_arr, response = get_board_(board_id)
+    return jsonify({"board": board_arr, "total_turns": response["total_turns"]})
+
 if __name__ == "__main__":
     app.run(debug=True)

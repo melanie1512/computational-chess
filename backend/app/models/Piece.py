@@ -139,3 +139,6 @@ class Piece(db.Model, ModelMixin):
     
     def get_en_passant(self):
         return self.en_passant
+    
+    def update_image(self):
+        self.image = f'assets/images/{self.type}_{"w" if self.team == 1 else "b"}.png'

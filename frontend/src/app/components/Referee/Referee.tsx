@@ -90,23 +90,12 @@ export default function Referee() {
         if (promotionPawn === undefined) {
             return;
         }
-        //endpoint to promote pawn
-        setBoard((previousBoard) => {
-            const clonedBoard = board.clone();
-            clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
-                if (piece.samePiecePosition(promotionPawn)) {
-                    results.push(new Piece(piece.id, piece.position.clone(), pieceType,
-                        piece.team, true));
-                } else {
-                    results.push(piece);
-                }
-                return results;
-            }, [] as Piece[]);
-
-            clonedBoard.calculateAllMoves();
-
-            return clonedBoard;
+        axios.post(`http://127.0.0.1:5000/promote_pawn/1`, {'id': promotionPawn.id, 'piece_type': pieceType})
+        .then(response => {
+            set_vars(response)
         })
+        .catch(error => console.error('Failed to fetch board:', error));
+        //endpoint to promote pawn
 
         modalRef.current?.classList.add("hidden");
     }
