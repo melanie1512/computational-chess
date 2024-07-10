@@ -14,6 +14,10 @@ from app.referee.rules.index import (
 
 from sqlalchemy.ext.declarative import declared_attr
 
+import logging
+# Set up logging	
+logging.basicConfig(level=logging.DEBUG)
+
 
 class ModelMixin:
     def to_dict(self):
@@ -115,8 +119,7 @@ class Board(db.Model, ModelMixin):
                         enemy, simulated_board.pieces
                     )
                     if enemy.is_pawn and any(
-                        Position.from_dict(m).x != enemy.position.x
-                        and Position.from_dict(m).same_position(cloned_king.position)
+                        Position.from_dict(m).x != enemy.position.x and Position.from_dict(m).same_position(cloned_king.position)
                         for m in enemy.possible_moves
                     ):
                         piece.possible_moves = [
