@@ -285,13 +285,14 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
         for enemy in enemy_pieces:
             if enemy.possible_moves is None:
                 continue
-
+            print(concerning_tiles)
             for move in enemy.possible_moves:
-                if any(
-                    Position.from_dict(t).same_position(move) for t in concerning_tiles
-                ):
-                    valid = False
-                    break
+                for t in concerning_tiles:
+                    tmp = Position.from_dict(t)
+                    print(move)
+                    if tmp.same_position(Position.from_dict(move)):
+                        valid = False
+                        break
 
             if not valid:
                 break

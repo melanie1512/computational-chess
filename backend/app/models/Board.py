@@ -172,6 +172,14 @@ class Board(db.Model, ModelMixin):
         )
         if played_piece.position.x == destination.x and played_piece.position.y == destination.y:
             return False
+        ver = False
+        for pos in played_piece.possible_moves:
+            if pos["x"] == destination.x and pos["y"] == destination.y:
+                ver = True
+                break
+        
+        if not ver:
+            return False
         if (
             played_piece.is_king
             and destination_piece

@@ -108,7 +108,11 @@ export default function Referee() {
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");
-        setBoard(initialBoard.clone());
+        axios.post(`http://127.0.0.1:5000/reset_board/1`)
+        .then(response => {
+            set_vars(response)
+        })
+        .catch(error => console.error('Failed to fetch board:', error));
     }
 
     return (
@@ -165,6 +169,7 @@ export default function Referee() {
                     <div className="character">h</div>
                 </div>
             </div>
+            <div className="div"> <button onClick={restartGame}>Restart</button></div>
         </>
     )
 }

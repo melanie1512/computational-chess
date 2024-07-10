@@ -85,7 +85,8 @@ def reset_board(board_id):
     board.id = 1
     db.session.add(board)
     db.session.commit()
-    return jsonify({"message": "Board reset completed"}), 200
+    board_arr, response = get_board_(board_id)
+    return jsonify({"board": board_arr, "total_turns": response["total_turns"]})
 
 @app.route("/show_board/<int:board_id>", methods=["GET"])
 def show_board(board_id):
