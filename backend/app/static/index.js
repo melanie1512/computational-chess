@@ -11,6 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function aiMove(){
+        fetch('/ai_move', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+    }
+
     function makeMove() {
         const startPosX = document.getElementById('start_pos_x').value;
         const startPosY = document.getElementById('start_pos_y').value;
@@ -35,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.error) {
                 alert(data.error);
             } else {
+                updateBoard();
+                aiMove();
                 updateBoard();
             }
         });

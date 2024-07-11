@@ -56,14 +56,14 @@ class Board(db.Model, ModelMixin):
                 for move in self.get_valid_moves(piece, self.pieces)
             ]
         # Calcula los movimientos de enroque para los reyes
-        for king in filter(lambda p: p.is_king, self.pieces):
-            if king.possible_moves is not None:
-                king.possible_moves.extend(
-                    [
-                        move.to_dict() if isinstance(move, Position) else move
-                        for move in get_castling_moves(king, self.pieces)
-                    ]
-                )
+        # for king in filter(lambda p: p.is_king, self.pieces):
+        #     if king.possible_moves is not None:
+        #         king.possible_moves.extend(
+        #             [
+        #                 move.to_dict() if isinstance(move, Position) else move
+        #                 for move in get_castling_moves(king, self.pieces)
+        #             ]
+        #         )
         # Verifica los movimientos del equipo actual
         self.check_current_team_moves()
 
@@ -146,9 +146,6 @@ class Board(db.Model, ModelMixin):
                 elif any(Position.from_dict(m).same_position(king.position) for m in enemy.possible_moves):
                     king.is_checked = True
 
-
-
-
     def get_valid_moves(self, piece, board_state):
         if piece.type == PieceType.PAWN:
             return get_possible_pawn_moves(piece, board_state)
@@ -164,6 +161,14 @@ class Board(db.Model, ModelMixin):
             return get_possible_king_moves(piece, board_state)
         else:
             return []
+    
+    def turn_move(self, move):
+        en_passant_move = move.get('en_passant_move', False)
+        valid_move = move['valid_move']
+        played_piece = move['played_piece']
+        destination = move['destination']
+        return self.play_move(en_passant_move, valid_move, played_piece, destination)
+
 
     def play_move(self, en_passant_move, valid_move, played_piece, destination):
         pawn_direction = 1 if played_piece.team == TeamType.OUR else -1
@@ -213,6 +218,23 @@ class Board(db.Model, ModelMixin):
         else:
             return False
         return True
+    
+    def get_all_possible_moves(self, team):
+        possible_moves = []
+        for piece in filter(lambda p: p.team == team, self.pieces):
+            for move in piece.possible_moves:
+                possible_moves.append({
+                    'played_piece': piece,
+                    'destination': Position.from_dict(move) if isinstance(move, dict) else move
+                })
+        return possible_moves
+
+    def is_game_over(self):
+        # Implement logic to check if the game is over (checkmate, stalemate, etc.)
+        for piece in self.pieces:
+            if piece.is_checked:
+                return True
+        return False
 
     def clone(self):
         return Board([piece.clone() for piece in self.pieces], self.total_turns)

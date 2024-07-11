@@ -276,6 +276,10 @@ def get_castling_moves(king: Piece, board_state: List[Piece]):
             m for m in rook.possible_moves if Position.from_dict(m).y == king.position.y
         ]
 
+        for tile in concerning_tiles:
+            if isinstance(tile, dict):
+                tile = Position.from_dict(tile)
+
         # Verificamos si alguna de las piezas enemigas puede atacar los espacios entre la torre y el rey
         enemy_pieces = [p for p in board_state if p.team != king.team]
 

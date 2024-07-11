@@ -4,6 +4,7 @@ from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType
 from .models.Piece import Piece
+from .minimax.functions import minimax, play_move_wrapper
 import os
 from dotenv import load_dotenv
 
@@ -300,8 +301,8 @@ def delete_piece(piece_id):
 # Endpoint para obtener el estado del tablero
 @app.route("/board", methods=["GET"])
 def get_board():
-    board = Board.query.first()  # Asumimos que solo hay un tablero
-    return jsonify(board.to_dict())
+    boards = Board.query.all()  # Asumimos que solo hay un tablero
+    return jsonify([board.to_dict() for board in boards])
 
 # Endpoint para jugar un movimiento
 @app.route("/board/play_move", methods=["POST"])
@@ -315,6 +316,18 @@ def play_move():
     result = board.play_move(en_passant_move, valid_move, played_piece, destination)
     db.session.commit()
     return jsonify({"result": result})
+
+@app.route("/ai_move", methods=["POST"])
+def ai_move():
+    board = Board.query.first()  # Asumiendo que solo hay un tablero
+    _, best_move = minimax(board, depth=2, alpha=float('-inf'), beta=float('inf'), maximizing_player=False)
+    
+    if best_move:
+        play_move_wrapper(board, best_move)
+        db.session.commit()
+        return jsonify({"message": "AI move completed"}), 200
+    else:
+        return jsonify({"error": "No valid moves found"}), 400
 
 
 if __name__ == "__main__":
