@@ -86,14 +86,11 @@ def reset_board(board_id):
     db.session.add(board)
     db.session.commit()
     
-    checkmate_status = board.checkmate_or_stalemate()
-
     board_arr, response = get_board_(board_id)
     return jsonify({
         "board": board_arr, 
         "total_turns": response["total_turns"],
-        "checkmate": checkmate_status == "checkmate",
-        "stalemate": checkmate_status == "stalemate"
+        "winning_team": board.winning_team,
     })
 
 
@@ -133,7 +130,11 @@ def get_board_(board_id):
         board_arr.append([[j, i], pie.get_type(), pie.get_team(), pie.get_possible_moves(), pie.get_id()])
 
     board = Board.query.get_or_404(board_id)  # Asegúrate de obtener el tablero
+    print(board.winning_team)
+    # Verifica el estado del rey
+    king_checked = any(p.is_king and p.team == board.current_team and p.is_checked for p in board.pieces)
     response["winning_team"] = board.winning_team  # Agrega el equipo ganador a la respuesta
+    response["king_checked"] = king_checked
 
     return board_arr, response
 
@@ -352,24 +353,13 @@ def validate_move(board_id):
         db.session.delete(item)
     db.session.commit()
     
-    checkmate_status = board.checkmate_or_stalemate()
-    
-    # Verifica el estado del rey
-    king_checked = any(p.is_king and p.team == board.current_team and p.is_checked for p in board.pieces)
-
-    print("king_checked", king_checked)
-    print("checkmate_status", checkmate_status)
-    print("board.winning_team", board.winning_team)
 
     board_arr, response = get_board_(board_id)
     return jsonify({
         "result": result, 
         "board": board_arr, 
         "total_turns": response["total_turns"],
-        "checkmate": checkmate_status == "checkmate",
-        "stalemate": checkmate_status == "stalemate",
-        "king_checked": king_checked,
-        "winning_team": board.winning_team  # Agrega el equipo ganador en la respuesta
+        "winning_team": response['winning_team']  # Agrega el equipo ganador en la respuesta
     })
 
 
@@ -384,7 +374,11 @@ def promote_pawn(board_id):
     piece.update_image()
     db.session.commit()
     board_arr, response = get_board_(board_id)
-    return jsonify({"board": board_arr, "total_turns": response["total_turns"]})
+    return jsonify({
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "winning_team": response['winning_team']  # Agrega el equipo ganador en la respuesta
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)

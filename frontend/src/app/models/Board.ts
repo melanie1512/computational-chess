@@ -6,9 +6,10 @@ export class Board {
     totalTurns: number;
     winningTeam?: TeamType;
 
-    constructor(pieces: Piece[], totalTurns: number) {
+    constructor(pieces: Piece[], totalTurns: number, winningTeam?: TeamType) {
         this.pieces = pieces;
         this.totalTurns = totalTurns;
+        this.winningTeam = winningTeam
     }
 
     get currentTeam(): TeamType {

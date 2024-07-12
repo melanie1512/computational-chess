@@ -17,7 +17,7 @@ export default function Referee() {
     const checkmateModalRef = useRef<HTMLDivElement>(null);
     const stalemateModalRef = useRef<HTMLDivElement>(null);
     const kingCheckedModalRef = useRef<HTMLDivElement>(null);
-
+    console.log(TeamType.OUR, TeamType.OPPONENT, TeamType.DRAW)
     useEffect(() => {
         axios.get(`http://127.0.0.1:5000/`)
             .then(response => {
@@ -29,6 +29,7 @@ export default function Referee() {
     const set_vars = (response: any) => {
         let piece_ = response.data["board"];
         let totalTurns = response.data["total_turns"];
+        let winningTeam = response.data["winning_team"];
         let piece = [];
 
         for (let i = 0; i < piece_.length; i++) {
@@ -45,21 +46,25 @@ export default function Referee() {
             }
             piece.push(new Piece(id, position, type, team, hasMoved, possibleMoves));
         }
-
-        const newBoard = new Board(piece, totalTurns);
+        if (winningTeam === String(TeamType.OUR)) {
+            winningTeam = TeamType.OUR;
+        }
+        if (winningTeam === String(TeamType.OPPONENT)) {
+            winningTeam = TeamType.OPPONENT;
+        }
+        if (winningTeam === String(TeamType.DRAW)) {
+            winningTeam = TeamType.DRAW;
+        }
+        const newBoard = new Board(piece, totalTurns, winningTeam);
         setBoard(newBoard);
 
-        setCheckmate(response.data.checkmate);
-        setStalemate(response.data.stalemate);
-        setKingChecked(response.data.king_checked);
-
-        if (response.data.checkmate) {
+        if (winningTeam === TeamType.OUR || winningTeam === TeamType.OPPONENT) {
             checkmateModalRef.current?.classList.remove("hidden");
         } else {
             checkmateModalRef.current?.classList.add("hidden");
         }
 
-        if (response.data.stalemate) {
+        if (winningTeam === TeamType.DRAW) {
             stalemateModalRef.current?.classList.remove("hidden");
         } else {
             stalemateModalRef.current?.classList.add("hidden");
@@ -159,7 +164,15 @@ export default function Referee() {
             <div className="modal hidden" ref={checkmateModalRef}>
                 <div className="modal-body">
                     <div className="checkmate-body">
-                        <span>{board.winningTeam === TeamType.OUR ? "Congratulations! You won!" : "You lose :c"}</span>
+                        <span>{board.winningTeam === TeamType.OUR ? "Congratulations! You won" : "You lose :c"}!</span>
+                        <button onClick={restartGame}>Play again</button>
+                    </div>
+                </div>
+            </div>
+            <div className="modal hidden" ref={stalemateModalRef}>
+                <div className="modal-body">
+                    <div className="checkmate-body">
+                        <span>Its a Draw!</span>
                         <button onClick={restartGame}>Play again</button>
                     </div>
                 </div>

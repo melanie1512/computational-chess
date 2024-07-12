@@ -40,5 +40,5 @@ export const TeamTypeManager_ = new TeamTypeManager('w');
 export enum TeamType {
     OPPONENT = TeamTypeManager_.opponent,
     OUR = TeamTypeManager_.our,
-    DRAW = 'd',
+    DRAW = 3,
 }
