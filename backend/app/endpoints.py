@@ -83,7 +83,7 @@ def setup_board():
         Piece(position_id=positions[30].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
         Piece(position_id=positions[31].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
     ]
-    return Board(pieces=pieces, total_turns=1)
+    return Board(total_turns=1, pieces=pieces)
 
 
 
@@ -135,7 +135,7 @@ def show_board(board_id):
         i = pos.y - 1
         j = pos.x - 1
         board_arr[i][j] = pie.to_char()
-
+    
     return jsonify({"board": board_arr})
 
 
@@ -320,10 +320,23 @@ def play_move():
 @app.route("/ai_move", methods=["POST"])
 def ai_move():
     board = Board.query.first()  # Asumiendo que solo hay un tablero
-    _, best_move = minimax(board, depth=2, alpha=float('-inf'), beta=float('inf'), maximizing_player=False)
-    
+
+    with db.session() as session:
+        _, best_move = minimax(board, depth=2, alpha=float('-inf'), beta=float('inf'), maximizing_player=False, session=session)
+
     if best_move:
-        play_move_wrapper(board, best_move)
+        print(best_move["played_piece"].to_dict())
+        print(best_move["destination"].to_dict())
+
+        en_passant_move = False
+        valid_move = True
+        played_piece =  Piece.query.get_or_404(best_move["played_piece"].id)
+
+        db.session.add(played_piece)
+        destination = best_move["destination"]
+        db.session.add(destination)
+        result = board.play_move(en_passant_move, valid_move, played_piece, destination)
+
         db.session.commit()
         return jsonify({"message": "AI move completed"}), 200
     else:

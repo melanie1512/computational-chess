@@ -35,7 +35,7 @@ class Board(db.Model, ModelMixin):
     total_turns = db.Column(db.Integer, nullable=False, default=0)
     winning_team = db.Column(db.String, nullable=True)
 
-    def __init__(self, pieces, total_turns):
+    def __init__(self, total_turns, pieces=[]):
         if pieces is None:
             self.pieces = []
         self.pieces = pieces
@@ -237,4 +237,4 @@ class Board(db.Model, ModelMixin):
         return False
 
     def clone(self):
-        return Board([piece.clone() for piece in self.pieces], self.total_turns)
+        return Board(self.total_turns, [piece.clone() for piece in self.pieces])

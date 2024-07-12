@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
             method: 'POST'
         })
         .then(response => response.json())
-        .then(data => {
+        .then(data =>{
             makeMove();
         });
     }

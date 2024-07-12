@@ -14,7 +14,7 @@ class Piece(db.Model, ModelMixin):
     __tablename__ = "pieces"
     id = db.Column(db.Integer, primary_key=True)
     image = db.Column(db.String, nullable=False)
-    position_id = db.Column(db.Integer, db.ForeignKey("positions.id"), nullable=False)
+    position_id = db.Column(db.Integer, db.ForeignKey("positions.id"))
     position = db.relationship("Position", backref=db.backref("pieces", lazy=True))
     type = db.Column(db.String, nullable=False)
     team = db.Column(db.Integer, nullable=False)
@@ -30,17 +30,26 @@ class Piece(db.Model, ModelMixin):
         team: TeamType,
         has_moved=False,
         possible_moves=None,
+        image=None,
+        is_checked=None,
+        board_id=None
     ):
         if possible_moves is None:
             possible_moves = []
-        self.image = f'assets/images/{type}_{"w" if team == 1 else "b"}.png'
+        if image is None:
+            image = f'assets/images/{type}_{"w" if team == 1 else "b"}.png'
+        if is_checked is None:
+            is_checked = False
+        if board_id is not None:
+            self.board_id = board_id
+        self.image = image
         self.position_id = position_id
         self.position = Position.query.get(position_id)
         self.type = type
         self.team = team
         self.possible_moves = possible_moves
         self.has_moved = has_moved
-        self.is_checked = False
+        self.is_checked = is_checked
 
     @property
     def is_pawn(self):

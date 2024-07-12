@@ -173,7 +173,7 @@ def setup_board():
         Piece(Position(7, 7), PieceType.PAWN, TeamType.OPPONENT),
         Piece(Position(8, 7), PieceType.PAWN, TeamType.OPPONENT),
     ]
-    return Board(pieces, total_turns=1)
+    return Board(total_turns=1, pieces=pieces)
 
 
 def test_board_initial_setup():
