@@ -1,32 +1,15 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, Blueprint
 from .db.database import db, setup_db
 from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType
-from .models.Piece import Piece
-from .minimax.functions import minimax, play_move_wrapper
-import os
-from dotenv import load_dotenv
+from .models.Piece import Piece, get_piece_
+from flask_cors import CORS, cross_origin
+from flask import redirect
+import requests 
+from .models.minimax import ai_move as ai_move_
 
-
-import logging
-# Set up logging	
-logging.basicConfig(level=logging.DEBUG)
-
-load_dotenv()
-
-def create_app():
-    app = Flask(__name__)
-    path = os.getenv("SQLALCHEMY_DATABASE_URI")
-    setup_db(app, path)
-
-    with app.app_context():
-        db.create_all()
-
-    return app
-
-
-app = create_app()
+app = Blueprint("home", __name__, template_folder="templates", static_folder="static")
 
 
 @app.context_processor
@@ -50,38 +33,38 @@ def setup_board():
     db.session.commit()
 
     pieces = [
-        Piece(position_id=positions[0].id, type=PieceType.ROOK, team=TeamType.OUR),
-        Piece(position_id=positions[1].id, type=PieceType.KNIGHT, team=TeamType.OUR),
-        Piece(position_id=positions[2].id, type=PieceType.BISHOP, team=TeamType.OUR),
-        Piece(position_id=positions[3].id, type=PieceType.QUEEN, team=TeamType.OUR),
-        Piece(position_id=positions[4].id, type=PieceType.KING, team=TeamType.OUR),
-        Piece(position_id=positions[5].id, type=PieceType.BISHOP, team=TeamType.OUR),
-        Piece(position_id=positions[6].id, type=PieceType.KNIGHT, team=TeamType.OUR),
-        Piece(position_id=positions[7].id, type=PieceType.ROOK, team=TeamType.OUR),
-        Piece(position_id=positions[8].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[9].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[10].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[11].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[12].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[13].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[14].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[15].id, type=PieceType.PAWN, team=TeamType.OUR),
-        Piece(position_id=positions[16].id, type=PieceType.ROOK, team=TeamType.OPPONENT),
-        Piece(position_id=positions[17].id, type=PieceType.KNIGHT, team=TeamType.OPPONENT),
-        Piece(position_id=positions[18].id, type=PieceType.BISHOP, team=TeamType.OPPONENT),
-        Piece(position_id=positions[19].id, type=PieceType.QUEEN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[20].id, type=PieceType.KING, team=TeamType.OPPONENT),
-        Piece(position_id=positions[21].id, type=PieceType.BISHOP, team=TeamType.OPPONENT),
-        Piece(position_id=positions[22].id, type=PieceType.KNIGHT, team=TeamType.OPPONENT),
-        Piece(position_id=positions[23].id, type=PieceType.ROOK, team=TeamType.OPPONENT),
-        Piece(position_id=positions[24].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[25].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[26].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[27].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[28].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[29].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[30].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
-        Piece(position_id=positions[31].id, type=PieceType.PAWN, team=TeamType.OPPONENT),
+        Piece(Position(0, 0), PieceType.ROOK, TeamType.OUR, 50),
+        Piece(Position(1, 0), PieceType.KNIGHT, TeamType.OUR, 20),
+        Piece(Position(2, 0), PieceType.BISHOP, TeamType.OUR, 20),
+        Piece(Position(3, 0), PieceType.QUEEN, TeamType.OUR, 240),
+        Piece(Position(4, 0), PieceType.KING, TeamType.OUR, 1000),
+        Piece(Position(5, 0), PieceType.BISHOP, TeamType.OUR, 20),
+        Piece(Position(6, 0), PieceType.KNIGHT, TeamType.OUR, 20),
+        Piece(Position(7, 0), PieceType.ROOK, TeamType.OUR, 50),
+        Piece(Position(0, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(1, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(2, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(3, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(4, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(5, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(6, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(7, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(0, 7), PieceType.ROOK, TeamType.OPPONENT, 50),
+        Piece(Position(1, 7), PieceType.KNIGHT, TeamType.OPPONENT, 20),
+        Piece(Position(2, 7), PieceType.BISHOP, TeamType.OPPONENT, 20),
+        Piece(Position(3, 7), PieceType.QUEEN, TeamType.OPPONENT, 240),
+        Piece(Position(4, 7), PieceType.KING, TeamType.OPPONENT, 1000),
+        Piece(Position(5, 7), PieceType.BISHOP, TeamType.OPPONENT, 20),
+        Piece(Position(6, 7), PieceType.KNIGHT, TeamType.OPPONENT, 20),
+        Piece(Position(7, 7), PieceType.ROOK, TeamType.OPPONENT, 50),
+        Piece(Position(0, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(1, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(2, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(3, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(4, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(5, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(6, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(7, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
     ]
     return Board(total_turns=1, pieces=pieces)
 
@@ -90,15 +73,16 @@ def setup_board():
 @app.route("/")
 def index():
     # Verificar si ya existe un tablero
-    board = Board.query.first()
-    if not board:
-        # Si no existe, crear un nuevo tablero
-        board = setup_board()
-        board.id = 1
-        
-        db.session.add(board)
-        db.session.commit()
-    return render_template("index.html", board_id=board.id)
+    board = Board.query.all()
+    print(board)
+    new_id = board[-1].id + 1 if board else 1
+    # Si no existe, crear un nuevo tablero
+    board = setup_board()
+    board.id = new_id
+    
+    db.session.add(board)
+    db.session.commit()
+    return jsonify({"message": "Board setup completed", "board_id": new_id}), 200
 
 @app.route("/setup_board", methods=["POST"])
 def setup_board_route():
@@ -117,7 +101,14 @@ def reset_board(board_id):
     board.id = 1
     db.session.add(board)
     db.session.commit()
-    return jsonify({"message": "Board reset completed"}), 200
+    
+    board_arr, response = get_board_(board_id)
+    return jsonify({
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "winning_team": board.winning_team,
+    })
+
 
 @app.route("/show_board/<int:board_id>", methods=["GET"])
 def show_board(board_id):
@@ -137,6 +128,39 @@ def show_board(board_id):
         board_arr[i][j] = pie.to_char()
     
     return jsonify({"board": board_arr})
+
+def get_board_(board_id):
+    # Tablero a retornar
+    response = calculate_all(board_id)
+    board_arr = []
+
+    # Obtener las piezas del tablero y sus posiciones
+    position_piece = (
+        db.session.query(Position, Piece)
+        .join(Piece, Position.id == Piece.position_id)
+        .filter(Piece.board_id == board_id)
+    )
+    for pos, pie in position_piece:
+        i = pos.y
+        j = pos.x
+        board_arr.append([[j, i], pie.get_type(), pie.get_team(), pie.get_possible_moves(), pie.get_id()])
+
+    board = Board.query.get_or_404(board_id)  # Asegúrate de obtener el tablero
+    print(board.winning_team)
+    # Verifica el estado del rey
+    king_checked = any(p.is_king and p.team == board.current_team and p.is_checked for p in board.pieces)
+    response["winning_team"] = board.winning_team  # Agrega el equipo ganador a la respuesta
+    response["king_checked"] = king_checked
+
+    return board_arr, response
+
+
+@app.route("/show_boards/<int:board_id>", methods=["GET"])
+@cross_origin()
+def show_boards(board_id):
+    board_arr, response = get_board_(board_id)
+    
+    return jsonify({"board": board_arr,  "total_turns": response["total_turns"]})
 
 
 @app.route("/delete_board/<int:board_id>", methods=["DELETE"])
@@ -167,30 +191,37 @@ def move_piece():
         .first()
     )
 
-    if not position_piece:
-        return jsonify({"error": "Piece not found or invalid move"}), 400
-    
-    position, piece = position_piece
-
-    # Verifica si el movimiento es válido para la pieza
-    for move in piece.possible_moves:
-        goal = Position.from_dict(move).clone()
-        if end_pos.same_position(goal):
-            # Realiza el movimiento en el tablero
-            board = (
-                Board.query.first()
-            )  # Suponiendo que solo hay un tablero en la base de datos
-            if board.play_move(
-                en_passant_move=False,
-                valid_move=True,
-                played_piece=piece,
-                destination=end_pos,
-            ):
-                db.session.commit()
-                return jsonify({"message": "Piece moved successfully"}), 200
+    if position_piece:
+        position, piece = position_piece
+        # Verifica si el movimiento es válido para la pieza
+        for move in piece.possible_moves:
+            goal = Position.from_dict(move).clone()
+            if end_pos.same_position(goal):
+                # Realiza el movimiento en el tablero
+                board = (
+                    Board.query.first()
+                )  # Suponiendo que solo hay un tablero en la base de datos
+                if board.play_move(
+                    en_passant_move=False,
+                    valid_move=True,
+                    played_piece=piece,
+                    destination=end_pos,
+                ):
+                    db.session.commit()
+                    return jsonify({"message": "Piece moved successfully"}), 200
+                else:
+                    return jsonify({"error": "Invalid move"}), 400
             else:
-                return jsonify({"error": "Invalid move"}), 400
-    return jsonify({"error": "Invalid move for this piece"}), 400
+                return jsonify({"error": "Invalid move for this piece"}), 400
+    else:
+        return jsonify({"error": "Piece not found or invalid move"}), 400
+
+
+def calculate_all(id):
+    board = Board.query.get_or_404(id)  # Asumimos que solo hay un tablero
+    board.calculate_all_moves()
+    db.session.commit()
+    return board.to_dict()
 
 # Endpoint para calcular todos los movimientos posibles
 @app.route("/board/calculate_moves", methods=["POST"])
@@ -250,12 +281,11 @@ def get_pieces():
     pieces = Piece.query.all()
     return jsonify([piece.to_dict() for piece in pieces])
 
-
 # Endpoint para obtener una pieza específica
 @app.route("/pieces/<int:piece_id>", methods=["GET"])
 def get_piece(piece_id):
-    piece = Piece.query.get_or_404(piece_id)
-    return jsonify(piece.to_dict())
+    response = get_piece_(piece_id)
+    return jsonify(response.to_dict())
 
 
 # Endpoint para crear una nueva pieza
@@ -313,35 +343,73 @@ def play_move():
     valid_move = data["valid_move"]
     played_piece = Piece.query.get_or_404(data["played_piece_id"])
     destination = Position.query.get_or_404(data["destination_id"])
-    result = board.play_move(en_passant_move, valid_move, played_piece, destination)
+    result, _ = board.play_move(en_passant_move, valid_move, played_piece, destination)
     db.session.commit()
     return jsonify({"result": result})
 
-@app.route("/ai_move", methods=["POST"])
-def ai_move():
-    board = Board.query.first()  # Asumiendo que solo hay un tablero
 
-    with db.session() as session:
-        _, best_move = minimax(board, depth=2, alpha=float('-inf'), beta=float('inf'), maximizing_player=False, session=session)
+@app.route("/play_move/<int:board_id>", methods=["POST"])
+def validate_move(board_id):
+    board = Board.query.get_or_404(board_id)
+    cloned = board.clone()
+    data = request.get_json()
+    
+    piece_id = data["id"]
+    piece = get_piece_(piece_id)
+    en_passant_move = False
+    validate_move = True if len(piece.get_possible_moves()) > 0 else False
+    destination = Position(data["x"], data["y"])
+    result, _ = cloned.play_move(en_passant_move, validate_move, piece, destination)
+    deleted = []
+    if result:
+        board.add_turn()
+        deleted = board.copy_cloned(cloned)
+    del cloned
+    for item in deleted:
+        db.session.delete(item)
+    db.session.commit()
+    
 
-    if best_move:
-        print(best_move["played_piece"].to_dict())
-        print(best_move["destination"].to_dict())
+    board_arr, response = get_board_(board_id)
+    return jsonify({
+        "result": result, 
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "winning_team": response['winning_team']  # Agrega el equipo ganador en la respuesta
+    })
 
-        en_passant_move = False
-        valid_move = True
-        played_piece =  Piece.query.get_or_404(best_move["played_piece"].id)
 
-        db.session.add(played_piece)
-        destination = best_move["destination"]
-        db.session.add(destination)
-        result = board.play_move(en_passant_move, valid_move, played_piece, destination)
 
-        db.session.commit()
-        return jsonify({"message": "AI move completed"}), 200
-    else:
-        return jsonify({"error": "No valid moves found"}), 400
+@app.route("/promote_pawn/<int:board_id>", methods=["POST"])
+def promote_pawn(board_id):
+    board = Board.query.get_or_404(board_id)
+    data = request.get_json()
+    piece_id = data["id"]
+    piece = get_piece_(piece_id)
+    piece.type = data["piece_type"]
+    piece.update_image()
+    db.session.commit()
+    board_arr, response = get_board_(board_id)
+    return jsonify({
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "winning_team": response['winning_team']  # Agrega el equipo ganador en la respuesta
+    })
 
+@app.route("/ai_move/<int:board_id>", methods=["POST"])
+def ai_move(board_id):
+    board = Board.query.get_or_404(board_id)
+    depth = 1
+    resp = ai_move_(board, depth)
+    if resp:
+        board.add_turn()
+    db.session.commit()
+    board_arr, response = get_board_(board_id)
+    return jsonify({
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "winning_team": response['winning_team']  # Agrega el equipo ganador en la respuesta
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)

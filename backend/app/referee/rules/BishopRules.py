@@ -87,7 +87,7 @@ def get_possible_bishop_moves(bishop, board_state):
     directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
     def is_valid_position(x, y):
-        return 1 <= x <= 8 and 1 <= y <= 8
+        return 0 <= x < 8 and 0 <= y < 8
 
     for dx, dy in directions:
         for i in range(1, 8):
@@ -105,53 +105,3 @@ def get_possible_bishop_moves(bishop, board_state):
                 break
 
     return possible_moves
-
-
-"""def get_possible_bishop_moves(bishop, boardstate):
-    possible_moves: List[Position] = []
-
-    # Movimiento upper right
-    for i in range(1, 8):
-        destination = Position(bishop.position.x + i, bishop.position.y + i)
-        if not tile_is_occupied(destination, boardstate):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    # Movimiento bottom right
-    for i in range(1, 8):
-        destination = Position(bishop.position.x + i, bishop.position.y - i)
-        if not tile_is_occupied(destination, boardstate):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    # Movimiento bottom left
-    for i in range(1, 8):
-        destination = Position(bishop.position.x - i, bishop.position.y - i)
-        if not tile_is_occupied(destination, boardstate):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    # Movimiento top left
-    for i in range(1, 8):
-        destination = Position(bishop.position.x - i, bishop.position.y + i)
-        if not tile_is_occupied(destination, boardstate):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, boardstate, bishop.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    return possible_moves"""

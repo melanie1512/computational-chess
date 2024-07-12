@@ -35,4 +35,4 @@ class PieceType:
 class TeamType:
     OPPONENT = TeamTypeManager_.opponent
     OUR = TeamTypeManager_.our
-    DRAW = "d"
+    DRAW = 3

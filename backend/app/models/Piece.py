@@ -22,17 +22,18 @@ class Piece(db.Model, ModelMixin):
     is_checked = db.Column(db.Boolean, default=False)
     board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
+    en_passant = db.Column(db.Boolean, default=False)
+    value = db.Column(db.Integer, nullable=False)
 
     def __init__(
         self,
         position_id,
         type: PieceType,
         team: TeamType,
+        value: int,
         has_moved=False,
         possible_moves=None,
-        image=None,
-        is_checked=None,
-        board_id=None
+        id: int = None,
     ):
         if possible_moves is None:
             possible_moves = []
@@ -49,7 +50,14 @@ class Piece(db.Model, ModelMixin):
         self.team = team
         self.possible_moves = possible_moves
         self.has_moved = has_moved
-        self.is_checked = is_checked
+        self.is_checked = False
+        if self.type == PieceType.PAWN:
+            self.en_passant = True
+        else:
+            self.en_passant = False
+        if id:
+            self.id = id
+        self.value = value
 
     @property
     def is_pawn(self):
@@ -91,10 +99,10 @@ class Piece(db.Model, ModelMixin):
             position_id=self.position_id,
             type=self.type,
             team=self.team,
+            value=self.value,
             has_moved=self.has_moved,
-            possible_moves=[
-                pos.to_dict() if isinstance(pos, Position) else pos for pos in self.possible_moves
-            ],
+            possible_moves=self.possible_moves,
+            id=self.id
         )
 
 
@@ -124,4 +132,42 @@ class Piece(db.Model, ModelMixin):
             elif self.is_queen:
                 return "♛"
             elif self.is_king:
-                return "♚"
+    
+    def get_type(self):
+        return self.type
+
+    def get_team(self):
+        return self.team
+    
+    def get_possible_moves(self):
+        for i, pos in enumerate(self.possible_moves):
+            if type(pos) != dict:
+                self.possible_moves[i] = pos.to_dict()
+                print(pos.x, pos.y)
+        return self.possible_moves
+    
+    def get_id(self):
+        return self.id
+    
+    def get_en_passant(self):
+        return self.en_passant
+    
+    def update_image(self):
+        self.image = f'assets/images/{self.type}_{"w" if self.team == 1 else "b"}.png'
+
+    def get_value(self):
+        return self.value
+    
+    def get_team(self):
+        return self.team
+
+    def get_position(self):
+        return self.position
+    
+    def undo_move(self, prev_pos):
+        self.position.x = prev_pos.x
+        self.position.y = prev_pos.y
+
+def get_piece_(piece_id):
+    piece = Piece.query.get_or_404(piece_id)
+    return piece

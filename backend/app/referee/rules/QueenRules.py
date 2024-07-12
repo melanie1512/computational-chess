@@ -45,7 +45,7 @@ def queen_move(
     return False
 
 
-"""def get_possible_queen_moves(queen: Piece, board_state: List[Piece]):
+def get_possible_queen_moves(queen: Piece, board_state: List[Piece]):
     possible_moves: List[Position] = []
 
     directions = [
@@ -63,41 +63,9 @@ def queen_move(
         for i in range(1, 8):
             destination = Position(queen.position.x + i * dx, queen.position.y + i * dy)
 
-            if not tile_is_occupied(destination, board_state):
-                possible_moves.append(destination)
-            elif tile_is_occupied_by_opponent(destination, board_state, queen.team):
-                possible_moves.append(destination)
-                break
-            else:
-                break
-
-    return possible_moves"""
-
-
-def get_possible_queen_moves(queen, board_state):
-    possible_moves = []
-
-    directions = [
-        (0, 1),  # Arriba
-        (0, -1),  # Abajo
-        (1, 0),  # Derecha
-        (-1, 0),  # Izquierda
-        (1, 1),  # Derecha Arriba
-        (1, -1),  # Abajo Derecha
-        (-1, 1),  # Arriba Izquierda
-        (-1, -1),  # Abajo Izquierda
-    ]
-
-    for dx, dy in directions:
-        for i in range(1, 8):
-            new_x = queen.position.x + i * dx
-            new_y = queen.position.y + i * dy
-            if new_x < 1 or new_x > 8 or new_y < 1 or new_y > 8:
-                break
-            destination = Position(new_x, new_y)
-            if not tile_is_occupied(destination, board_state):
+            if not tile_is_occupied(destination, board_state) and destination.is_valid():
                 possible_moves.append(destination.to_dict())
-            elif tile_is_occupied_by_opponent(destination, board_state, queen.team):
+            elif tile_is_occupied_by_opponent(destination, board_state, queen.team) and destination.is_valid():
                 possible_moves.append(destination.to_dict())
                 break
             else:

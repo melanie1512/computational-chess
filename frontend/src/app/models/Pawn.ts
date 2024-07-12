@@ -8,7 +8,7 @@ export class Pawn extends Piece {
         team: TeamType, hasMoved: boolean,
         enPassant?: boolean,
         possibleMoves: Position[] = []) {
-        super(position, PieceType.PAWN, team, hasMoved, possibleMoves);
+        super(0, position, PieceType.PAWN, team, hasMoved, possibleMoves);
         this.enPassant = enPassant;
     }
 

@@ -1,70 +1,114 @@
 'use client';
 import "./Referee.css";
 import { useEffect, useRef, useState } from "react";
-import { initialBoard } from "../../Constants";
+import axios from 'axios';
 import { Piece, Position } from "../../models";
 import { Board } from "../../models/Board";
-import { Pawn } from "../../models/Pawn";
-import { bishopMove, kingMove, knightMove, pawnMove, queenMove, rookMove } from "../../referee/rules";
-import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/Chessboard";
+import { PieceType, TeamType } from "../../Types";
 
-export default function Referee() {
-    const [board, setBoard] = useState<Board>(initialBoard.clone());
-    const [promotionPawn, setPromotionPawn] = useState<Piece>();
+interface Props {
+    id: number;
+  }
+
+export default function Referee({id}: Props) {
+    const [board, setBoard] = useState<Board>(new Board([], 1));
+    const [checkmate, setCheckmate] = useState<boolean>(false);
+    const [stalemate, setStalemate] = useState<boolean>(false);
+    const [kingChecked, setKingChecked] = useState<boolean>(false);
+
+    const boardID = id;
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
     const stalemateModalRef = useRef<HTMLDivElement>(null);
+    const kingCheckedModalRef = useRef<HTMLDivElement>(null);
+    console.log(TeamType.OUR, TeamType.OPPONENT, TeamType.DRAW)
 
-    function playMove(playedPiece: Piece, destination: Position): boolean {
-        // If the playing piece doesn't have any moves return
-        if (playedPiece.possibleMoves === undefined) return false;
+    const set_vars = (response: any) => {
+        let piece_ = response.data["board"];
+        let totalTurns = response.data["total_turns"];
+        let winningTeam = response.data["winning_team"];
+        let piece = [];
 
-        // Prevent the inactive team from playing
-        if (playedPiece.team === TeamType.OUR
-            && board.totalTurns % 2 !== 1) return false;
-        if (playedPiece.team === TeamType.OPPONENT
-            && board.totalTurns % 2 !== 0) return false;
-
-        let playedMoveIsValid = false;
-
-        const validMove = playedPiece.possibleMoves?.some(m => m.samePosition(destination));
-
-        if (!validMove) return false;
-
-        const enPassantMove = isEnPassantMove(
-            playedPiece.position,
-            destination,
-            playedPiece.type,
-            playedPiece.team
-        );
-
-        // playMove modifies the board thus we
-        // need to call setBoard
-        setBoard(() => {
-            const clonedBoard = board.clone();
-            clonedBoard.totalTurns += 1;
-            // Playing the move
-            playedMoveIsValid = clonedBoard.playMove(enPassantMove,
-                validMove, playedPiece,
-                destination);
-
-            if (clonedBoard.winningTeam !== undefined && clonedBoard.winningTeam !== TeamType.DRAW) {
-                checkmateModalRef.current?.classList.remove("hidden");
+        for (let i = 0; i < piece_.length; i++) {
+            let position = new Position(piece_[i][0][0], piece_[i][0][1]);
+            let type = piece_[i][1];
+            let team = piece_[i][2];
+            let hasMoved = false;
+            let possibleMoves = [];
+            console.log(piece_)
+            let id = piece_[i][4];
+            if (piece_[i][3].length > 0) {
+                for (let j = 0; j < piece_[i][3].length; j++) {
+                    possibleMoves.push(new Position(piece_[i][3][j]['x'], piece_[i][3][j]['y']));
+                }
             }
-            else if (clonedBoard.winningTeam === TeamType.DRAW) {
-                stalemateModalRef.current?.classList.remove("hidden");
+            piece.push(new Piece(id, position, type, team, hasMoved, possibleMoves));
+        }
+        if (winningTeam === String(TeamType.OUR)) {
+            winningTeam = TeamType.OUR;
+        }
+        if (winningTeam === String(TeamType.OPPONENT)) {
+            winningTeam = TeamType.OPPONENT;
+        }
+        if (winningTeam === String(TeamType.DRAW)) {
+            winningTeam = TeamType.DRAW;
+        }
+        const newBoard = new Board(piece, totalTurns, winningTeam);
+        setBoard(newBoard);
+
+        if (winningTeam === TeamType.OUR || winningTeam === TeamType.OPPONENT) {
+            checkmateModalRef.current?.classList.remove("hidden");
+        } else {
+            checkmateModalRef.current?.classList.add("hidden");
+        }
+
+        if (winningTeam === TeamType.DRAW) {
+            stalemateModalRef.current?.classList.remove("hidden");
+        } else {
+            stalemateModalRef.current?.classList.add("hidden");
+        }
+
+        if (response.data.king_checked) {
+            kingCheckedModalRef.current?.classList.remove("hidden");
+        } else {
+            kingCheckedModalRef.current?.classList.add("hidden");
+        }
+    }
+
+    useEffect(() => {
+        const fetchBoard = () => {
+            axios.get(`http://127.0.0.1:5000/show_boards/${boardID}`)
+                .then(response => {
+                    set_vars(response);
+                })
+                .catch(error => console.error('Failed to fetch board:', error));
+        }
+
+        fetchBoard();
+    }, []);
+
+    const [promotionPawn, setPromotionPawn] = useState<Piece>();
+    let playedMoveIsValid = false;
+
+    async function playMove(playedPiece: Piece, destination: Position): Promise<boolean> {
+        try {
+            const response = await axios.post(`http://127.0.0.1:5000/play_move/${boardID}`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y});
+            set_vars(response);
+            playedMoveIsValid = response.data["result"];
+            if (response.data["total_turns"] % 2 === 0 && playedMoveIsValid) {
+                const response_ = await axios.post(`http://127.0.0.1:5000/ai_move/${boardID}`);
+                set_vars(response_);
             }
+        } catch (error) {
+            console.error('Failed to fetch board:', error);
+            playedMoveIsValid = false;
+        }
 
-            return clonedBoard;
-        })
-
-        // This is for promoting a pawn
         let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
-
         if (destination.y === promotionRow && playedPiece.isPawn) {
             modalRef.current?.classList.remove("hidden");
-            setPromotionPawn((previousPromotionPawn) => {
+            setPromotionPawn(() => {
                 const clonedPlayedPiece = playedPiece.clone();
                 clonedPlayedPiece.position = destination.clone();
                 return clonedPlayedPiece;
@@ -74,84 +118,15 @@ export default function Referee() {
         return playedMoveIsValid;
     }
 
-    function isEnPassantMove(
-        initialPosition: Position,
-        desiredPosition: Position,
-        type: PieceType,
-        team: TeamType
-    ) {
-        const pawnDirection = team === TeamType.OUR ? 1 : -1;
-
-        if (type === PieceType.PAWN) {
-            if (
-                (desiredPosition.x - initialPosition.x === -1 ||
-                    desiredPosition.x - initialPosition.x === 1) &&
-                desiredPosition.y - initialPosition.y === pawnDirection
-            ) {
-                const piece = board.pieces.find(
-                    (p) =>
-                        p.position.x === desiredPosition.x &&
-                        p.position.y === desiredPosition.y - pawnDirection &&
-                        p.isPawn &&
-                        (p as Pawn).enPassant
-                );
-                if (piece) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    //TODO
-    //Add stalemate!
-    function isValidMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType) {
-        let validMove = false;
-        switch (type) {
-            case PieceType.PAWN:
-                validMove = pawnMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.KNIGHT:
-                validMove = knightMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.BISHOP:
-                validMove = bishopMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.ROOK:
-                validMove = rookMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.QUEEN:
-                validMove = queenMove(initialPosition, desiredPosition, team, board.pieces);
-                break;
-            case PieceType.KING:
-                validMove = kingMove(initialPosition, desiredPosition, team, board.pieces);
-        }
-
-        return validMove;
-    }
-
     function promotePawn(pieceType: PieceType) {
-        if (promotionPawn === undefined) {
+        if (!promotionPawn) {
             return;
         }
-
-        setBoard((previousBoard) => {
-            const clonedBoard = board.clone();
-            clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
-                if (piece.samePiecePosition(promotionPawn)) {
-                    results.push(new Piece(piece.position.clone(), pieceType,
-                        piece.team, true));
-                } else {
-                    results.push(piece);
-                }
-                return results;
-            }, [] as Piece[]);
-
-            clonedBoard.calculateAllMoves();
-
-            return clonedBoard;
-        })
+        axios.post(`http://127.0.0.1:5000/promote_pawn/${boardID}`, {'id': promotionPawn.id, 'piece_type': pieceType})
+            .then(response => {
+                set_vars(response);
+            })
+            .catch(error => console.error('Failed to fetch board:', error));
 
         modalRef.current?.classList.add("hidden");
     }
@@ -163,7 +138,19 @@ export default function Referee() {
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");
-        setBoard(initialBoard.clone());
+        axios.post(`http://127.0.0.1:5000/reset_board/${boardID}`)
+            .then(response => {
+                set_vars(response);
+            })
+            .catch(error => console.error('Failed to fetch board:', error));
+    }
+
+    // Esta función envuelve la llamada asíncrona en una función síncrona
+    const handlePlayMove = (playedPiece: Piece, destination: Position) => {
+        playMove(playedPiece, destination).then(result => {
+            return result;
+        });
+        return playedMoveIsValid;
     }
 
     return (
@@ -205,8 +192,7 @@ export default function Referee() {
                         <div className="number">2</div>
                         <div className="number">1</div>
                     </div>
-                    <Chessboard playMove={playMove}
-                        pieces={board.pieces} />
+                    <Chessboard playMove={handlePlayMove} pieces={board.pieces} />
                 </div>
                 <div className="coordinates-x">
                     <div className="character"></div>
@@ -220,6 +206,7 @@ export default function Referee() {
                     <div className="character">h</div>
                 </div>
             </div>
+            <div className="div"> <button onClick={restartGame}>Restart</button></div>
         </>
-    )
+    );
 }
