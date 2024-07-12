@@ -22,14 +22,14 @@ def minimax(board_: Board, depth: int, maximizing_player: int, alpha: int, beta:
                     m = Position(move['x'], move['y'])
                     board_.play_move(False, valid_move, p, m)
                     eval = minimax(board_, depth - 1, False, alpha, beta, data, False)[0]
-                    board_.play_move(False, valid_move, p, prev_pos)
+                    board_.undo_move(p, prev_pos)
                     if save_data:
                         if eval >= max_eval:
                             if eval > data[0]:
-                                max_eval = eval
-                                data[1] = [move, piece.get_id(), max_eval]
+                                data[0] = eval
+                                data[1] = [[move, piece.get_id(), eval, piece.type]]
                             elif eval == data[0]:
-                                data[1].append([move, piece.get_id(), max_eval])
+                                data[1].append([move, piece.get_id(), eval, piece.type])
                         max_eval = max(max_eval, eval)
                     alpha = max(alpha, eval)
                     if beta <= alpha:
@@ -46,7 +46,7 @@ def minimax(board_: Board, depth: int, maximizing_player: int, alpha: int, beta:
                     m = Position(move['x'], move['y'])
                     board_.play_move(False, valid_move, p, m)
                     eval = minimax(board_, depth - 1, True, alpha, beta, data, False)[0]
-                    board_.play_move(False, valid_move, p, prev_pos)
+                    board_.undo_move(p, prev_pos)
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
                     if beta <= alpha:
@@ -58,6 +58,7 @@ def ai_move(board: Board, depth: int):
     data = [0, []]
     board_ = board.clone()
     data = minimax(board_, depth, True, -math.inf, math.inf, data, True)
+    print(data)
     if len(data[1]) == 0:
         return None
     best_score = max(data[1], key=lambda x: x[2])[2]

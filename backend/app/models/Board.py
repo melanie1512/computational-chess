@@ -264,18 +264,22 @@ class Board(db.Model, ModelMixin):
     def evaluate(self):
         white_score = 0
         black_score = 0
-
+        cnt_our = 0
+        cnt_opponent = 0
         for piece in self.pieces:
             if piece.team == TeamType.OUR:
+                cnt_our += 1
                 white_score += piece.value
             else:
+                cnt_opponent += 1
                 black_score += piece.value
-            return white_score - black_score
+    
+        return black_score - white_score 
         
     def get_pieces(self):
         return self.pieces
     
-    def undo_move(self, prev_pos, piece):
+    def undo_move(self, piece, prev_pos):
         self.pieces = [
                 piece for piece in self.pieces if not piece.same_position(prev_pos)
             ]

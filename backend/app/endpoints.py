@@ -20,38 +20,38 @@ def utility_processor():
 def setup_board():
     # initializing pieces
     pieces = [
-        Piece(Position(0, 0), PieceType.ROOK, TeamType.OUR, 5),
-        Piece(Position(1, 0), PieceType.KNIGHT, TeamType.OUR, 3),
-        Piece(Position(2, 0), PieceType.BISHOP, TeamType.OUR, 3),
-        Piece(Position(3, 0), PieceType.QUEEN, TeamType.OUR, 9),
-        Piece(Position(4, 0), PieceType.KING, TeamType.OUR, 100),
-        Piece(Position(5, 0), PieceType.BISHOP, TeamType.OUR, 3),
-        Piece(Position(6, 0), PieceType.KNIGHT, TeamType.OUR, 3),
-        Piece(Position(7, 0), PieceType.ROOK, TeamType.OUR, 5),
-        Piece(Position(0, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(1, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(2, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(3, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(4, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(5, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(6, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(7, 1), PieceType.PAWN, TeamType.OUR, 1),
-        Piece(Position(0, 7), PieceType.ROOK, TeamType.OPPONENT, 5),
-        Piece(Position(1, 7), PieceType.KNIGHT, TeamType.OPPONENT, 3),
-        Piece(Position(2, 7), PieceType.BISHOP, TeamType.OPPONENT, 3),
-        Piece(Position(3, 7), PieceType.QUEEN, TeamType.OPPONENT, 9),
-        Piece(Position(4, 7), PieceType.KING, TeamType.OPPONENT, 100),
-        Piece(Position(5, 7), PieceType.BISHOP, TeamType.OPPONENT, 3),
-        Piece(Position(6, 7), PieceType.KNIGHT, TeamType.OPPONENT, 3),
-        Piece(Position(7, 7), PieceType.ROOK, TeamType.OPPONENT, 5),
-        Piece(Position(0, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(1, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(2, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(3, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(4, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(5, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(6, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
-        Piece(Position(7, 6), PieceType.PAWN, TeamType.OPPONENT, 1),
+        Piece(Position(0, 0), PieceType.ROOK, TeamType.OUR, 50),
+        Piece(Position(1, 0), PieceType.KNIGHT, TeamType.OUR, 20),
+        Piece(Position(2, 0), PieceType.BISHOP, TeamType.OUR, 20),
+        Piece(Position(3, 0), PieceType.QUEEN, TeamType.OUR, 240),
+        Piece(Position(4, 0), PieceType.KING, TeamType.OUR, 1000),
+        Piece(Position(5, 0), PieceType.BISHOP, TeamType.OUR, 20),
+        Piece(Position(6, 0), PieceType.KNIGHT, TeamType.OUR, 20),
+        Piece(Position(7, 0), PieceType.ROOK, TeamType.OUR, 50),
+        Piece(Position(0, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(1, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(2, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(3, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(4, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(5, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(6, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(7, 1), PieceType.PAWN, TeamType.OUR, 10),
+        Piece(Position(0, 7), PieceType.ROOK, TeamType.OPPONENT, 50),
+        Piece(Position(1, 7), PieceType.KNIGHT, TeamType.OPPONENT, 20),
+        Piece(Position(2, 7), PieceType.BISHOP, TeamType.OPPONENT, 20),
+        Piece(Position(3, 7), PieceType.QUEEN, TeamType.OPPONENT, 240),
+        Piece(Position(4, 7), PieceType.KING, TeamType.OPPONENT, 1000),
+        Piece(Position(5, 7), PieceType.BISHOP, TeamType.OPPONENT, 20),
+        Piece(Position(6, 7), PieceType.KNIGHT, TeamType.OPPONENT, 20),
+        Piece(Position(7, 7), PieceType.ROOK, TeamType.OPPONENT, 50),
+        Piece(Position(0, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(1, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(2, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(3, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(4, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(5, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(6, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
+        Piece(Position(7, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
     ]
     return Board(pieces, total_turns=1)
 
@@ -384,7 +384,7 @@ def promote_pawn(board_id):
 @app.route("/ai_move/<int:board_id>", methods=["POST"])
 def ai_move(board_id):
     board = Board.query.get_or_404(board_id)
-    depth = 2
+    depth = 1
     resp = ai_move_(board, depth)
     if resp:
         board.add_turn()
