@@ -19,19 +19,6 @@ def utility_processor():
 
 def setup_board():
     # initializing pieces
-    positions = [
-        Position(x=1, y=1), Position(x=2, y=1), Position(x=3, y=1), Position(x=4, y=1),
-        Position(x=5, y=1), Position(x=6, y=1), Position(x=7, y=1), Position(x=8, y=1),
-        Position(x=1, y=2), Position(x=2, y=2), Position(x=3, y=2), Position(x=4, y=2),
-        Position(x=5, y=2), Position(x=6, y=2), Position(x=7, y=2), Position(x=8, y=2),
-        Position(x=1, y=8), Position(x=2, y=8), Position(x=3, y=8), Position(x=4, y=8),
-        Position(x=5, y=8), Position(x=6, y=8), Position(x=7, y=8), Position(x=8, y=8),
-        Position(x=1, y=7), Position(x=2, y=7), Position(x=3, y=7), Position(x=4, y=7),
-        Position(x=5, y=7), Position(x=6, y=7), Position(x=7, y=7), Position(x=8, y=7),
-    ]
-    db.session.add_all(positions)
-    db.session.commit()
-
     pieces = [
         Piece(Position(0, 0), PieceType.ROOK, TeamType.OUR, 50),
         Piece(Position(1, 0), PieceType.KNIGHT, TeamType.OUR, 20),
@@ -66,8 +53,7 @@ def setup_board():
         Piece(Position(6, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
         Piece(Position(7, 6), PieceType.PAWN, TeamType.OPPONENT, 10),
     ]
-    return Board(total_turns=1, pieces=pieces)
-
+    return Board(pieces, total_turns=1)
 
 
 @app.route("/")
@@ -98,7 +84,7 @@ def reset_board(board_id):
     db.session.delete(board)
     db.session.commit()
     board = setup_board()
-    board.id = 1
+    board.id = board_id
     db.session.add(board)
     db.session.commit()
     
@@ -126,7 +112,7 @@ def show_board(board_id):
         i = pos.y - 1
         j = pos.x - 1
         board_arr[i][j] = pie.to_char()
-    
+
     return jsonify({"board": board_arr})
 
 def get_board_(board_id):
@@ -331,8 +317,8 @@ def delete_piece(piece_id):
 # Endpoint para obtener el estado del tablero
 @app.route("/board", methods=["GET"])
 def get_board():
-    boards = Board.query.all()  # Asumimos que solo hay un tablero
-    return jsonify([board.to_dict() for board in boards])
+    board = Board.query.first()  # Asumimos que solo hay un tablero
+    return jsonify(board.to_dict())
 
 # Endpoint para jugar un movimiento
 @app.route("/board/play_move", methods=["POST"])

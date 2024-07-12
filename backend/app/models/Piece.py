@@ -3,6 +3,7 @@ from .Types import PieceType, TeamType
 from .Position import Position
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.ext.declarative import declared_attr
 
 
 class ModelMixin:
@@ -14,12 +15,15 @@ class Piece(db.Model, ModelMixin):
     __tablename__ = "pieces"
     id = db.Column(db.Integer, primary_key=True)
     image = db.Column(db.String, nullable=False)
-    position_id = db.Column(db.Integer, db.ForeignKey("positions.id"))
+    position_id = db.Column(db.Integer, db.ForeignKey("positions.id"), nullable=False)
     position = db.relationship("Position", backref=db.backref("pieces", lazy=True))
     type = db.Column(db.String, nullable=False)
     team = db.Column(db.Integer, nullable=False)
     has_moved = db.Column(db.Boolean, default=False)
     is_checked = db.Column(db.Boolean, default=False)
+    possible_moves = db.relationship(
+        "Piece", backref="board", lazy=True, cascade="all, delete-orphan"
+    )
     board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
     en_passant = db.Column(db.Boolean, default=False)
@@ -27,7 +31,7 @@ class Piece(db.Model, ModelMixin):
 
     def __init__(
         self,
-        position_id,
+        position: Position,
         type: PieceType,
         team: TeamType,
         value: int,
@@ -37,15 +41,8 @@ class Piece(db.Model, ModelMixin):
     ):
         if possible_moves is None:
             possible_moves = []
-        if image is None:
-            image = f'assets/images/{type}_{"w" if team == 1 else "b"}.png'
-        if is_checked is None:
-            is_checked = False
-        if board_id is not None:
-            self.board_id = board_id
-        self.image = image
-        self.position_id = position_id
-        self.position = Position.query.get(position_id)
+        self.image = f'assets/images/{type}_{"w" if team == 1 else "b"}.png'
+        self.position = position
         self.type = type
         self.team = team
         self.possible_moves = possible_moves
@@ -84,19 +81,16 @@ class Piece(db.Model, ModelMixin):
         return self.type == PieceType.QUEEN
 
     def same_piece_position(self, other_piece):
-        return self.position.same_position(other_piece.position) if self.position and other_piece.position else False
+        return self.position.same_position(other_piece.position)
 
     def same_position(self, other_position):
         return (
-            self.position and 
-            other_position and 
-            self.position.x == other_position.x and 
-            self.position.y == other_position.y
+            self.position.x == other_position.x and self.position.y == other_position.y
         )
 
     def clone(self):
         return Piece(
-            position_id=self.position_id,
+            position=self.position.clone(),
             type=self.type,
             team=self.team,
             value=self.value,
@@ -104,7 +98,6 @@ class Piece(db.Model, ModelMixin):
             possible_moves=self.possible_moves,
             id=self.id
         )
-
 
     def to_char(self):
         if self.team == 1:
@@ -132,6 +125,7 @@ class Piece(db.Model, ModelMixin):
             elif self.is_queen:
                 return "♛"
             elif self.is_king:
+                return "♚"
     
     def get_type(self):
         return self.type

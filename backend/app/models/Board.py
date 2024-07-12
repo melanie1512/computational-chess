@@ -30,7 +30,7 @@ class Board(db.Model, ModelMixin):
     total_turns = db.Column(db.Integer, nullable=False, default=0)
     winning_team = db.Column(db.String, nullable=True)
 
-    def __init__(self, total_turns, pieces=[]):
+    def __init__(self, pieces, total_turns):
         if pieces is None:
             self.pieces = []
         self.pieces = pieces
@@ -65,15 +65,17 @@ class Board(db.Model, ModelMixin):
                     )
                 )
                 self.winning_team = (
-                    'draw'
+                    TeamType.DRAW
                     if not king.is_checked
                     else (
-                        'opponent'
-                        if self.current_team == 'our'
-                        else 'our'
+                        TeamType.OPPONENT
+                        if self.current_team == TeamType.OUR
+                        else TeamType.OUR
                     )
                 )
-
+        except Exception as e:
+            print(f"Error during calculate_all_moves: {e}")
+            raise
 
     def check_current_team_moves(self):
         try:
@@ -160,14 +162,6 @@ class Board(db.Model, ModelMixin):
             return get_possible_king_moves(piece, board_state)
         else:
             return []
-    
-    def turn_move(self, move):
-        en_passant_move = move.get('en_passant_move', False)
-        valid_move = move['valid_move']
-        played_piece = move['played_piece']
-        destination = move['destination']
-        return self.play_move(en_passant_move, valid_move, played_piece, destination)
-
 
     def play_move(self, en_passant_move, valid_move, played_piece, destination):
 
