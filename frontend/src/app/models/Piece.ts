@@ -14,7 +14,7 @@ export class Piece {
         team: TeamType, hasMoved: boolean,
         possibleMoves: Position[] = []) {
         this.id = id;
-        this.image = `assets/images/${type}_${team === 1? 'w': 'b'}.png`;
+        this.image = `/assets/images/${type}_${team === 1? 'w': 'b'}.png`;
         this.position = position;
         this.type = type;
         this.team = team;

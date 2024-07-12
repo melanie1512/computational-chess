@@ -170,7 +170,7 @@ class Board(db.Model, ModelMixin):
             (p for p in self.pieces if p.same_position(destination)), None
         )
         if played_piece.position.x == destination.x and played_piece.position.y == destination.y:
-            return False
+            return False, []
         ver = False
         for pos in played_piece.possible_moves:
             if pos["x"] == destination.x and pos["y"] == destination.y:
@@ -178,7 +178,7 @@ class Board(db.Model, ModelMixin):
                 break
 
         if not ver:
-            return False
+            return False, []
         if (
             played_piece.is_king
             and destination_piece
@@ -199,7 +199,7 @@ class Board(db.Model, ModelMixin):
                     destination_piece.has_moved = True
 
             self.calculate_all_moves()
-            return True
+            return True, []
         
         if en_passant_move:
             self.pieces = [
@@ -221,14 +221,17 @@ class Board(db.Model, ModelMixin):
             self.pieces = [
                 piece for piece in self.pieces if not piece.same_position(destination)
             ]
+            eated = [
+                piece for piece in self.pieces if piece.same_position(destination)
+            ]
 
             played_piece.position.x = destination.x
             played_piece.position.y = destination.y
             played_piece.has_moved = True
             self.calculate_all_moves()
         else:
-            return False
-        return True
+            return False, []
+        return True, eated
 
     def clone(self):
         return Board([piece.clone() for piece in self.pieces], self.total_turns)
@@ -279,10 +282,13 @@ class Board(db.Model, ModelMixin):
     def get_pieces(self):
         return self.pieces
     
-    def undo_move(self, piece, prev_pos):
+    def undo_move(self, piece, prev_pos, _piece):
         self.pieces = [
                 piece for piece in self.pieces if not piece.same_position(prev_pos)
             ]
+        for p in _piece:
+            self.pieces.append(p)
+
         piece.position.x = prev_pos.x
         piece.position.y = prev_pos.y
         self.calculate_all_moves()

@@ -7,24 +7,22 @@ import { Board } from "../../models/Board";
 import Chessboard from "../Chessboard/Chessboard";
 import { PieceType, TeamType } from "../../Types";
 
-export default function Referee() {
+interface Props {
+    id: number;
+  }
+
+export default function Referee({id}: Props) {
     const [board, setBoard] = useState<Board>(new Board([], 1));
     const [checkmate, setCheckmate] = useState<boolean>(false);
     const [stalemate, setStalemate] = useState<boolean>(false);
     const [kingChecked, setKingChecked] = useState<boolean>(false);
 
+    const boardID = id;
     const modalRef = useRef<HTMLDivElement>(null);
     const checkmateModalRef = useRef<HTMLDivElement>(null);
     const stalemateModalRef = useRef<HTMLDivElement>(null);
     const kingCheckedModalRef = useRef<HTMLDivElement>(null);
     console.log(TeamType.OUR, TeamType.OPPONENT, TeamType.DRAW)
-    useEffect(() => {
-        axios.get(`http://127.0.0.1:5000/`)
-            .then(response => {
-                // Handle response if needed
-            })
-            .catch(error => console.error('Failed to fetch board:', error));
-    }, []);
 
     const set_vars = (response: any) => {
         let piece_ = response.data["board"];
@@ -38,6 +36,7 @@ export default function Referee() {
             let team = piece_[i][2];
             let hasMoved = false;
             let possibleMoves = [];
+            console.log(piece_)
             let id = piece_[i][4];
             if (piece_[i][3].length > 0) {
                 for (let j = 0; j < piece_[i][3].length; j++) {
@@ -79,7 +78,7 @@ export default function Referee() {
 
     useEffect(() => {
         const fetchBoard = () => {
-            axios.get(`http://127.0.0.1:5000/show_boards/1`)
+            axios.get(`http://127.0.0.1:5000/show_boards/${boardID}`)
                 .then(response => {
                     set_vars(response);
                 })
@@ -94,11 +93,11 @@ export default function Referee() {
 
     async function playMove(playedPiece: Piece, destination: Position): Promise<boolean> {
         try {
-            const response = await axios.post(`http://127.0.0.1:5000/play_move/1`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y});
+            const response = await axios.post(`http://127.0.0.1:5000/play_move/${boardID}`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y});
             set_vars(response);
             playedMoveIsValid = response.data["result"];
             if (response.data["total_turns"] % 2 === 0 && playedMoveIsValid) {
-                const response_ = await axios.post(`http://127.0.0.1:5000/ai_move/1`);
+                const response_ = await axios.post(`http://127.0.0.1:5000/ai_move/${boardID}`);
                 set_vars(response_);
             }
         } catch (error) {
@@ -123,7 +122,7 @@ export default function Referee() {
         if (!promotionPawn) {
             return;
         }
-        axios.post(`http://127.0.0.1:5000/promote_pawn/1`, {'id': promotionPawn.id, 'piece_type': pieceType})
+        axios.post(`http://127.0.0.1:5000/promote_pawn/${boardID}`, {'id': promotionPawn.id, 'piece_type': pieceType})
             .then(response => {
                 set_vars(response);
             })
@@ -139,7 +138,7 @@ export default function Referee() {
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");
-        axios.post(`http://127.0.0.1:5000/reset_board/1`)
+        axios.post(`http://127.0.0.1:5000/reset_board/${boardID}`)
             .then(response => {
                 set_vars(response);
             })

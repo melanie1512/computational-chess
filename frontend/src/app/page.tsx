@@ -1,10 +1,10 @@
 import Image from "next/image";
-import Referee from './components/Referee/Referee';
+import Initial from './components/Initial/Initial';
 
 function Home() {
   return (
     <main id="app" className="p-24">
-      <Referee/>
+      <Initial/>
     </main>
   );
 }

@@ -20,9 +20,10 @@ def minimax(board_: Board, depth: int, maximizing_player: int, alpha: int, beta:
                 for move in p.get_possible_moves():
                     prev_pos = p.get_position()
                     m = Position(move['x'], move['y'])
-                    board_.play_move(False, valid_move, p, m)
+                    _, _piece = board_.play_move(False, valid_move, p, m)
                     eval = minimax(board_, depth - 1, False, alpha, beta, data, False)[0]
-                    board_.undo_move(p, prev_pos)
+                    #falta recolocar la pieza eliminada
+                    board_.undo_move(p, prev_pos, _piece)
                     if save_data:
                         if eval >= max_eval:
                             if eval > data[0]:
@@ -44,9 +45,9 @@ def minimax(board_: Board, depth: int, maximizing_player: int, alpha: int, beta:
                 for move in p.get_possible_moves():
                     prev_pos = p.get_position()
                     m = Position(move['x'], move['y'])
-                    board_.play_move(False, valid_move, p, m)
+                    _, _piece = board_.play_move(False, valid_move, p, m)
                     eval = minimax(board_, depth - 1, True, alpha, beta, data, False)[0]
-                    board_.undo_move(p, prev_pos)
+                    board_.undo_move(p, prev_pos, _piece)
                     min_eval = min(min_eval, eval)
                     beta = min(beta, eval)
                     if beta <= alpha:

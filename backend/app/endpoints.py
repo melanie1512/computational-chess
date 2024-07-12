@@ -59,15 +59,16 @@ def setup_board():
 @app.route("/")
 def index():
     # Verificar si ya existe un tablero
-    board = Board.query.first()
-    if not board:
-        # Si no existe, crear un nuevo tablero
-        board = setup_board()
-        board.id = 1
-        
-        db.session.add(board)
-        db.session.commit()
-    return render_template("index.html", board_id=board.id)
+    board = Board.query.all()
+    print(board)
+    new_id = board[-1].id + 1 if board else 1
+    # Si no existe, crear un nuevo tablero
+    board = setup_board()
+    board.id = new_id
+    
+    db.session.add(board)
+    db.session.commit()
+    return jsonify({"message": "Board setup completed", "board_id": new_id}), 200
 
 @app.route("/setup_board", methods=["POST"])
 def setup_board_route():
@@ -116,7 +117,7 @@ def show_board(board_id):
 
 def get_board_(board_id):
     # Tablero a retornar
-    response = calculate_all()
+    response = calculate_all(board_id)
     board_arr = []
 
     # Obtener las piezas del tablero y sus posiciones
@@ -202,8 +203,8 @@ def move_piece():
         return jsonify({"error": "Piece not found or invalid move"}), 400
 
 
-def calculate_all():
-    board = Board.query.first()  # Asumimos que solo hay un tablero
+def calculate_all(id):
+    board = Board.query.get_or_404(id)  # Asumimos que solo hay un tablero
     board.calculate_all_moves()
     db.session.commit()
     return board.to_dict()
@@ -328,7 +329,7 @@ def play_move():
     valid_move = data["valid_move"]
     played_piece = Piece.query.get_or_404(data["played_piece_id"])
     destination = Position.query.get_or_404(data["destination_id"])
-    result = board.play_move(en_passant_move, valid_move, played_piece, destination)
+    result, _ = board.play_move(en_passant_move, valid_move, played_piece, destination)
     db.session.commit()
     return jsonify({"result": result})
 
@@ -344,7 +345,7 @@ def validate_move(board_id):
     en_passant_move = False
     validate_move = True if len(piece.get_possible_moves()) > 0 else False
     destination = Position(data["x"], data["y"])
-    result = cloned.play_move(en_passant_move, validate_move, piece, destination)
+    result, _ = cloned.play_move(en_passant_move, validate_move, piece, destination)
     deleted = []
     if result:
         board.add_turn()
