@@ -260,3 +260,17 @@ class Board(db.Model, ModelMixin):
                 i += 1
 
         return deleted
+    
+    def evaluate(self):
+        white_score = 0
+        black_score = 0
+
+        for piece in self.pieces:
+            if piece.team == TeamType.OUR:
+                white_score += piece.value
+            else:
+                black_score += piece.value
+            return white_score - black_score
+        
+    def get_pieces(self):
+        return self.pieces

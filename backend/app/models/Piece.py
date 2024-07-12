@@ -27,12 +27,14 @@ class Piece(db.Model, ModelMixin):
     board_id = db.Column(db.Integer, db.ForeignKey("board.id"), nullable=False)
     possible_moves = db.Column(MutableList.as_mutable(JSON), default=[])
     en_passant = db.Column(db.Boolean, default=False)
+    value = db.Column(db.Integer, nullable=False)
 
     def __init__(
         self,
         position: Position,
         type: PieceType,
         team: TeamType,
+        value: int,
         has_moved=False,
         possible_moves=None,
         id: int = None,
@@ -52,6 +54,7 @@ class Piece(db.Model, ModelMixin):
             self.en_passant = False
         if id:
             self.id = id
+        self.value = value
 
     @property
     def is_pawn(self):
@@ -90,11 +93,12 @@ class Piece(db.Model, ModelMixin):
             position=self.position.clone(),
             type=self.type,
             team=self.team,
+            value=self.value,
             has_moved=self.has_moved,
             possible_moves=[
                 Position.from_dict(pos).clone() for pos in self.possible_moves
             ],
-            id=self.id,
+            id=self.id
         )
 
     def to_char(self):
@@ -142,6 +146,12 @@ class Piece(db.Model, ModelMixin):
     
     def update_image(self):
         self.image = f'assets/images/{self.type}_{"w" if self.team == 1 else "b"}.png'
+
+    def get_value(self):
+        return self.value
+    
+    def get_team(self):
+        return self.team
 
 def get_piece_(piece_id):
     piece = Piece.query.get_or_404(piece_id)
