@@ -218,11 +218,12 @@ class Board(db.Model, ModelMixin):
             self.calculate_all_moves()
 
         elif valid_move:
+            eated = []
+            for piece in self.pieces:
+                if piece.same_position(destination):
+                    eated.append(piece)
             self.pieces = [
                 piece for piece in self.pieces if not piece.same_position(destination)
-            ]
-            eated = [
-                piece for piece in self.pieces if piece.same_position(destination)
             ]
 
             played_piece.position.x = destination.x

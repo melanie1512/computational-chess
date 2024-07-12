@@ -59,12 +59,10 @@ def ai_move(board: Board, depth: int):
     data = [0, []]
     board_ = board.clone()
     data = minimax(board_, depth, True, -math.inf, math.inf, data, True)
-    print(data)
     if len(data[1]) == 0:
         return None
     best_score = max(data[1], key=lambda x: x[2])[2]
     piece_and_move = random.choice([move for move in data[1] if move[2] == best_score])
-    print(piece_and_move)
     piece = piece_and_move[1]
     move = piece_and_move[0]
 
