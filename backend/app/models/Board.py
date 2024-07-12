@@ -176,7 +176,7 @@ class Board(db.Model, ModelMixin):
             if pos["x"] == destination.x and pos["y"] == destination.y:
                 ver = True
                 break
-        
+
         if not ver:
             return False
         if (
@@ -274,3 +274,11 @@ class Board(db.Model, ModelMixin):
         
     def get_pieces(self):
         return self.pieces
+    
+    def undo_move(self, prev_pos, piece):
+        self.pieces = [
+                piece for piece in self.pieces if not piece.same_position(prev_pos)
+            ]
+        piece.position.x = prev_pos.x
+        piece.position.y = prev_pos.y
+        self.calculate_all_moves()

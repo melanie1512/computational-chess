@@ -95,9 +95,7 @@ class Piece(db.Model, ModelMixin):
             team=self.team,
             value=self.value,
             has_moved=self.has_moved,
-            possible_moves=[
-                Position.from_dict(pos).clone() for pos in self.possible_moves
-            ],
+            possible_moves=self.possible_moves,
             id=self.id
         )
 
@@ -136,6 +134,10 @@ class Piece(db.Model, ModelMixin):
         return self.team
     
     def get_possible_moves(self):
+        for i, pos in enumerate(self.possible_moves):
+            if type(pos) != dict:
+                self.possible_moves[i] = pos.to_dict()
+                print(pos.x, pos.y)
         return self.possible_moves
     
     def get_id(self):
@@ -152,6 +154,13 @@ class Piece(db.Model, ModelMixin):
     
     def get_team(self):
         return self.team
+
+    def get_position(self):
+        return self.position
+    
+    def undo_move(self, prev_pos):
+        self.position.x = prev_pos.x
+        self.position.y = prev_pos.y
 
 def get_piece_(piece_id):
     piece = Piece.query.get_or_404(piece_id)

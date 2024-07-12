@@ -63,9 +63,9 @@ def get_possible_queen_moves(queen: Piece, board_state: List[Piece]):
         for i in range(1, 8):
             destination = Position(queen.position.x + i * dx, queen.position.y + i * dy)
 
-            if not tile_is_occupied(destination, board_state):
+            if not tile_is_occupied(destination, board_state) and destination.is_valid():
                 possible_moves.append(destination.to_dict())
-            elif tile_is_occupied_by_opponent(destination, board_state, queen.team):
+            elif tile_is_occupied_by_opponent(destination, board_state, queen.team) and destination.is_valid():
                 possible_moves.append(destination.to_dict())
                 break
             else:

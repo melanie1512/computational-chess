@@ -55,7 +55,7 @@ def get_possible_rook_moves(rook, board_state):
 
     # Movimiento arriba
     for i in range(1, 8):
-        if rook.position.y + i > 8:
+        if rook.position.y + i > 7:
             break
         destination = Position(rook.position.x, rook.position.y + i)
         if not tile_is_occupied(destination, board_state):
@@ -94,7 +94,7 @@ def get_possible_rook_moves(rook, board_state):
 
     # Movimiento derecha
     for i in range(1, 8):
-        if rook.position.x + i > 8:
+        if rook.position.x + i > 7:
             break
         destination = Position(rook.position.x + i, rook.position.y)
         if not tile_is_occupied(destination, board_state):

@@ -97,6 +97,10 @@ export default function Referee() {
             const response = await axios.post(`http://127.0.0.1:5000/play_move/1`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y});
             set_vars(response);
             playedMoveIsValid = response.data["result"];
+            if (response.data["total_turns"] % 2 === 0 && playedMoveIsValid) {
+                const response_ = await axios.post(`http://127.0.0.1:5000/ai_move/1`);
+                set_vars(response_);
+            }
         } catch (error) {
             console.error('Failed to fetch board:', error);
             playedMoveIsValid = false;

@@ -7,6 +7,7 @@ from .models.Piece import Piece, get_piece_
 from flask_cors import CORS, cross_origin
 from flask import redirect
 import requests 
+from .models.minimax import ai_move as ai_move_
 
 app = Blueprint("home", __name__, template_folder="templates", static_folder="static")
 
@@ -372,6 +373,21 @@ def promote_pawn(board_id):
     piece = get_piece_(piece_id)
     piece.type = data["piece_type"]
     piece.update_image()
+    db.session.commit()
+    board_arr, response = get_board_(board_id)
+    return jsonify({
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "winning_team": response['winning_team']  # Agrega el equipo ganador en la respuesta
+    })
+
+@app.route("/ai_move/<int:board_id>", methods=["POST"])
+def ai_move(board_id):
+    board = Board.query.get_or_404(board_id)
+    depth = 2
+    resp = ai_move_(board, depth)
+    if resp:
+        board.add_turn()
     db.session.commit()
     board_arr, response = get_board_(board_id)
     return jsonify({
