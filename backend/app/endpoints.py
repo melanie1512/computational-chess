@@ -85,8 +85,17 @@ def reset_board(board_id):
     board.id = 1
     db.session.add(board)
     db.session.commit()
+    
+    checkmate_status = board.checkmate_or_stalemate()
+
     board_arr, response = get_board_(board_id)
-    return jsonify({"board": board_arr, "total_turns": response["total_turns"]})
+    return jsonify({
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "checkmate": checkmate_status == "checkmate",
+        "stalemate": checkmate_status == "stalemate"
+    })
+
 
 @app.route("/show_board/<int:board_id>", methods=["GET"])
 def show_board(board_id):
@@ -123,7 +132,11 @@ def get_board_(board_id):
         j = pos.x
         board_arr.append([[j, i], pie.get_type(), pie.get_team(), pie.get_possible_moves(), pie.get_id()])
 
+    board = Board.query.get_or_404(board_id)  # Asegúrate de obtener el tablero
+    response["winning_team"] = board.winning_team  # Agrega el equipo ganador a la respuesta
+
     return board_arr, response
+
 
 @app.route("/show_boards/<int:board_id>", methods=["GET"])
 @cross_origin()
@@ -330,7 +343,7 @@ def validate_move(board_id):
     
     piece_id = data["id"]
     piece = get_piece_(piece_id)
-    en_passant_move = False #piece.get_en_passant()
+    en_passant_move = False
     validate_move = True if len(piece.get_possible_moves()) > 0 else False
     destination = Position(data["x"], data["y"])
     result = cloned.play_move(en_passant_move, validate_move, piece, destination)
@@ -342,8 +355,28 @@ def validate_move(board_id):
     for item in deleted:
         db.session.delete(item)
     db.session.commit()
+    
+    checkmate_status = board.checkmate_or_stalemate()
+    
+    # Verifica el estado del rey
+    king_checked = any(p.is_king and p.team == board.current_team and p.is_checked for p in board.pieces)
+
+    print("king_checked", king_checked)
+    print("checkmate_status", checkmate_status)
+    print("board.winning_team", board.winning_team)
+
     board_arr, response = get_board_(board_id)
-    return jsonify({"result": result, "board": board_arr, "total_turns": response["total_turns"]})
+    return jsonify({
+        "result": result, 
+        "board": board_arr, 
+        "total_turns": response["total_turns"],
+        "checkmate": checkmate_status == "checkmate",
+        "stalemate": checkmate_status == "stalemate",
+        "king_checked": king_checked,
+        "winning_team": board.winning_team  # Agrega el equipo ganador en la respuesta
+    })
+
+
 
 @app.route("/promote_pawn/<int:board_id>", methods=["POST"])
 def promote_pawn(board_id):

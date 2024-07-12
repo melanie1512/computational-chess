@@ -44,6 +44,20 @@ class Board(db.Model, ModelMixin):
             TeamType.OPPONENT if self.total_turns % 2 == 0 else TeamType.OUR
         )  # se puede cambiar para modificar color de pieza
 
+    
+    def checkmate_or_stalemate(self):
+        current_team_pieces = [p for p in self.pieces if p.team == self.current_team]
+        all_moves = [move for piece in current_team_pieces for move in piece.possible_moves]
+        
+        if not all_moves:
+            king = next(p for p in self.pieces if p.is_king and p.team == self.current_team)
+            if king.is_checked:
+                self.winning_team = TeamType.OPPONENT if self.current_team == TeamType.OUR else TeamType.OUR
+                return "checkmate"
+            else:
+                return "stalemate"
+        return None
+    
     def calculate_all_moves(self):
         try:
             for piece in self.pieces:

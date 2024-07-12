@@ -1,82 +1,106 @@
 'use client';
 import "./Referee.css";
 import { useEffect, useRef, useState } from "react";
-import { initialBoard } from "../../Constants";
+import axios from 'axios';
 import { Piece, Position } from "../../models";
 import { Board } from "../../models/Board";
-import axios from 'axios';
-import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/Chessboard";
+import { PieceType, TeamType } from "../../Types";
 
 export default function Referee() {
-    
     const [board, setBoard] = useState<Board>(new Board([], 1));
-    let board_id
+    const [checkmate, setCheckmate] = useState<boolean>(false);
+    const [stalemate, setStalemate] = useState<boolean>(false);
+    const [kingChecked, setKingChecked] = useState<boolean>(false);
+
+    const modalRef = useRef<HTMLDivElement>(null);
+    const checkmateModalRef = useRef<HTMLDivElement>(null);
+    const stalemateModalRef = useRef<HTMLDivElement>(null);
+    const kingCheckedModalRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         axios.get(`http://127.0.0.1:5000/`)
             .then(response => {
-                
+                // Handle response if needed
             })
             .catch(error => console.error('Failed to fetch board:', error));
     }, []);
 
     const set_vars = (response: any) => {
-        let piece_ = response.data["board"]
-        let totalTurns = response.data["total_turns"]
-        console.log(piece_, "piece_", response.data)
-        let piece = []
+        let piece_ = response.data["board"];
+        let totalTurns = response.data["total_turns"];
+        let piece = [];
+
         for (let i = 0; i < piece_.length; i++) {
-            let position = new Position(piece_[i][0][0], piece_[i][0][1])
-            let type = piece_[i][1]
-            let team = piece_[i][2]
-            let hasMoved = false
-            let possibleMoves = []
-            let id = piece_[i][4]
-            if (piece_[i][3].length > 0  ){
+            let position = new Position(piece_[i][0][0], piece_[i][0][1]);
+            let type = piece_[i][1];
+            let team = piece_[i][2];
+            let hasMoved = false;
+            let possibleMoves = [];
+            let id = piece_[i][4];
+            if (piece_[i][3].length > 0) {
                 for (let j = 0; j < piece_[i][3].length; j++) {
-                    possibleMoves.push(new Position(piece_[i][3][j]['x'], piece_[i][3][j]['y']))
+                    possibleMoves.push(new Position(piece_[i][3][j]['x'], piece_[i][3][j]['y']));
                 }
             }
-            piece.push(new Piece(id, position, type, team, hasMoved, possibleMoves))
+            piece.push(new Piece(id, position, type, team, hasMoved, possibleMoves));
         }
-        console.log(piece)
+
         const newBoard = new Board(piece, totalTurns);
         setBoard(newBoard);
+
+        setCheckmate(response.data.checkmate);
+        setStalemate(response.data.stalemate);
+        setKingChecked(response.data.king_checked);
+
+        if (response.data.checkmate) {
+            checkmateModalRef.current?.classList.remove("hidden");
+        } else {
+            checkmateModalRef.current?.classList.add("hidden");
+        }
+
+        if (response.data.stalemate) {
+            stalemateModalRef.current?.classList.remove("hidden");
+        } else {
+            stalemateModalRef.current?.classList.add("hidden");
+        }
+
+        if (response.data.king_checked) {
+            kingCheckedModalRef.current?.classList.remove("hidden");
+        } else {
+            kingCheckedModalRef.current?.classList.add("hidden");
+        }
     }
 
     useEffect(() => {
         const fetchBoard = () => {
             axios.get(`http://127.0.0.1:5000/show_boards/1`)
                 .then(response => {
-                    set_vars(response)
+                    set_vars(response);
                 })
                 .catch(error => console.error('Failed to fetch board:', error));
         }
-    
+
         fetchBoard();
     }, []);
 
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
-    const modalRef = useRef<HTMLDivElement>(null);
-    const checkmateModalRef = useRef<HTMLDivElement>(null);
-    const stalemateModalRef = useRef<HTMLDivElement>(null);
     let playedMoveIsValid = false;
-    //llamar api backend para jugar
-    function playMove(playedPiece: Piece, destination: Position): boolean {
-        axios.post(`http://127.0.0.1:5000/play_move/1`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y})
-            .then(response => {
-                set_vars(response)
-                playedMoveIsValid = response.data["result"]
-            })
-            .catch(error => console.error('Failed to fetch board:', error));
 
-        // This is for promoting a pawn
+    async function playMove(playedPiece: Piece, destination: Position): Promise<boolean> {
+        try {
+            const response = await axios.post(`http://127.0.0.1:5000/play_move/1`, {'id': playedPiece.id, 'x': destination.x, 'y': destination.y});
+            set_vars(response);
+            playedMoveIsValid = response.data["result"];
+        } catch (error) {
+            console.error('Failed to fetch board:', error);
+            playedMoveIsValid = false;
+        }
+
         let promotionRow = (playedPiece.team === TeamType.OUR) ? 7 : 0;
-        //implemnte inside play_move
         if (destination.y === promotionRow && playedPiece.isPawn) {
             modalRef.current?.classList.remove("hidden");
-            setPromotionPawn((previousPromotionPawn) => {
+            setPromotionPawn(() => {
                 const clonedPlayedPiece = playedPiece.clone();
                 clonedPlayedPiece.position = destination.clone();
                 return clonedPlayedPiece;
@@ -87,15 +111,14 @@ export default function Referee() {
     }
 
     function promotePawn(pieceType: PieceType) {
-        if (promotionPawn === undefined) {
+        if (!promotionPawn) {
             return;
         }
         axios.post(`http://127.0.0.1:5000/promote_pawn/1`, {'id': promotionPawn.id, 'piece_type': pieceType})
-        .then(response => {
-            set_vars(response)
-        })
-        .catch(error => console.error('Failed to fetch board:', error));
-        //endpoint to promote pawn
+            .then(response => {
+                set_vars(response);
+            })
+            .catch(error => console.error('Failed to fetch board:', error));
 
         modalRef.current?.classList.add("hidden");
     }
@@ -103,16 +126,23 @@ export default function Referee() {
     function promotionTeamType() {
         return (promotionPawn?.team === TeamType.OUR) ? "w" : "b";
     }
-    //request to restart game
-    //endpont to restart game
+
     function restartGame() {
         checkmateModalRef.current?.classList.add("hidden");
         stalemateModalRef.current?.classList.add("hidden");
         axios.post(`http://127.0.0.1:5000/reset_board/1`)
-        .then(response => {
-            set_vars(response)
-        })
-        .catch(error => console.error('Failed to fetch board:', error));
+            .then(response => {
+                set_vars(response);
+            })
+            .catch(error => console.error('Failed to fetch board:', error));
+    }
+
+    // Esta función envuelve la llamada asíncrona en una función síncrona
+    const handlePlayMove = (playedPiece: Piece, destination: Position) => {
+        playMove(playedPiece, destination).then(result => {
+            return result;
+        });
+        return playedMoveIsValid;
     }
 
     return (
@@ -129,15 +159,7 @@ export default function Referee() {
             <div className="modal hidden" ref={checkmateModalRef}>
                 <div className="modal-body">
                     <div className="checkmate-body">
-                        <span>{board.winningTeam === TeamType.OUR ? "Congratulations! You won" : "You lose :c"}!</span>
-                        <button onClick={restartGame}>Play again</button>
-                    </div>
-                </div>
-            </div>
-            <div className="modal hidden" ref={stalemateModalRef}>
-                <div className="modal-body">
-                    <div className="checkmate-body">
-                        <span>Its a Draw!</span>
+                        <span>{board.winningTeam === TeamType.OUR ? "Congratulations! You won!" : "You lose :c"}</span>
                         <button onClick={restartGame}>Play again</button>
                     </div>
                 </div>
@@ -154,8 +176,7 @@ export default function Referee() {
                         <div className="number">2</div>
                         <div className="number">1</div>
                     </div>
-                    <Chessboard playMove={playMove}
-                        pieces={board.pieces} />
+                    <Chessboard playMove={handlePlayMove} pieces={board.pieces} />
                 </div>
                 <div className="coordinates-x">
                     <div className="character"></div>
@@ -171,5 +192,5 @@ export default function Referee() {
             </div>
             <div className="div"> <button onClick={restartGame}>Restart</button></div>
         </>
-    )
+    );
 }
