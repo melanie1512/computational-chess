@@ -1,8 +1,5 @@
-import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves, getCastlingMoves } from "../referee/rules";
-import { PieceType, TeamType } from "../Types";
-import { Pawn } from "./Pawn";
+import { TeamType } from "../Types";
 import { Piece } from "./Piece";
-import { Position } from "./Position";
 
 export class Board {
     pieces: Piece[];

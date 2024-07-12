@@ -1,5 +1,6 @@
 from app.models.Types import PieceType, TeamType
 from app.models.Position import Position
+from app.models.Piece import get_piece_
 from app.db.database import db
 
 from app.referee.rules.index import (
@@ -11,8 +12,6 @@ from app.referee.rules.index import (
     get_possible_king_moves,
     get_castling_moves,
 )
-
-from sqlalchemy.ext.declarative import declared_attr
 
 
 class ModelMixin:
@@ -178,7 +177,6 @@ class Board(db.Model, ModelMixin):
             return []
 
     def play_move(self, en_passant_move, valid_move, played_piece, destination):
-        #falta agregar logica para eliminar pieza en caso de comer
 
         pawn_direction = 1 if played_piece.team == TeamType.OUR else -1
         destination_piece = next(
@@ -200,17 +198,22 @@ class Board(db.Model, ModelMixin):
             and destination_piece.is_rook
             and destination_piece.team == played_piece.team
         ):
+            destination_piece = get_piece_(destination_piece.id)
             direction = (
                 1 if destination_piece.position.x - played_piece.position.x > 0 else -1
             )
             new_king_x_position = played_piece.position.x + direction * 2
             for piece in self.pieces:
                 if piece.same_piece_position(played_piece):
-                    piece.position.x = new_king_x_position
+                    played_piece.has_moved = True
+                    played_piece.position.x = new_king_x_position
                 elif piece.same_piece_position(destination_piece):
-                    piece.position.x = new_king_x_position - direction
+                    destination_piece.position.x = new_king_x_position - direction            
+                    destination_piece.has_moved = True
+
             self.calculate_all_moves()
             return True
+        
         if en_passant_move:
             self.pieces = [
                 piece
@@ -226,6 +229,7 @@ class Board(db.Model, ModelMixin):
             played_piece.position.y = destination.y
             played_piece.has_moved = True
             self.calculate_all_moves()
+
         elif valid_move:
             self.pieces = [
                 piece for piece in self.pieces if not piece.same_position(destination)

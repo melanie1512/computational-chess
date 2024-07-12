@@ -3,7 +3,7 @@ from .db.database import db, setup_db
 from .models.Board import Board
 from .models.Position import Position
 from .models.Types import PieceType, TeamType
-from .models.Piece import Piece
+from .models.Piece import Piece, get_piece_
 from flask_cors import CORS, cross_origin
 from flask import redirect
 import requests 
@@ -263,10 +263,6 @@ def delete_position(position_id):
 def get_pieces():
     pieces = Piece.query.all()
     return jsonify([piece.to_dict() for piece in pieces])
-
-def get_piece_(piece_id):
-    piece = Piece.query.get_or_404(piece_id)
-    return piece
 
 # Endpoint para obtener una pieza específica
 @app.route("/pieces/<int:piece_id>", methods=["GET"])

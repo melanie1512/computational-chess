@@ -50,68 +50,6 @@ def rook_move(
     return False
 
 
-"""def get_possible_rook_moves(rook: Piece, board_state: List[Piece]) -> List[Position]:
-    possible_moves = []
-
-    # Movimiento arriba
-    for i in range(1, 8):
-        if rook.position.y + i > 7:
-            break
-        destination = Position(rook.position.x, rook.position.y + i)
-
-        if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    # Movimiento abajo
-    for i in range(1, 8):
-        if rook.position.y - i < 0:
-            break
-        destination = Position(rook.position.x, rook.position.y - i)
-
-        if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    # Movimiento izquierda
-    for i in range(1, 8):
-        if rook.position.x - i < 0:
-            break
-        destination = Position(rook.position.x - i, rook.position.y)
-
-        if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    # Movimiento derecha
-    for i in range(1, 8):
-        if rook.position.x + i > 7:
-            break
-        destination = Position(rook.position.x + i, rook.position.y)
-
-        if not tile_is_occupied(destination, board_state):
-            possible_moves.append(destination)
-        elif tile_is_occupied_by_opponent(destination, board_state, rook.team):
-            possible_moves.append(destination)
-            break
-        else:
-            break
-
-    return possible_moves"""
-
-
 def get_possible_rook_moves(rook, board_state):
     possible_moves = []
 

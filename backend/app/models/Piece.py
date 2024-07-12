@@ -142,3 +142,7 @@ class Piece(db.Model, ModelMixin):
     
     def update_image(self):
         self.image = f'assets/images/{self.type}_{"w" if self.team == 1 else "b"}.png'
+
+def get_piece_(piece_id):
+    piece = Piece.query.get_or_404(piece_id)
+    return piece
